@@ -310,6 +310,12 @@
             box-shadow: 0 0 20px rgba(255,215,0,0.3);
         }
 
+        .team-score.active {
+            border-color: #3b82f6;
+            background: rgba(59,130,246,0.2);
+            box-shadow: 0 0 25px rgba(59,130,246,0.5);
+        }
+
         .team-score.answering {
             border-color: #22c55e;
             background: rgba(34,197,94,0.2);
@@ -576,6 +582,24 @@
             z-index: 1001;
         }
 
+        /* Инфо о выборе */
+        .select-info {
+            text-align: center;
+            padding: 15px;
+            background: rgba(59,130,246,0.2);
+            border: 2px solid rgba(59,130,246,0.5);
+            border-radius: 15px;
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+            color: #60a5fa;
+            font-weight: 700;
+        }
+
+        .select-info .team {
+            color: #ffd700;
+            font-size: 1.3rem;
+        }
+
         /* Адаптивность */
         @media (max-width: 768px) {
             .lobby h1 { font-size: 2.5rem; }
@@ -641,6 +665,7 @@
             <div class="round-badge" id="roundBadge">KOLO 1</div>
         </div>
         
+        <div id="selectInfo" class="select-info" style="display:none;"></div>
         <div class="scoreboard" id="scoreboard"></div>
         <div class="board" id="board"></div>
     </div>
@@ -775,7 +800,8 @@
             current: null,
             answering: null,
             tried: [],
-            timerStart: null
+            timerStart: null,
+            activeTeam: null
         };
 
         let myTeam = localStorage.getItem('inquiz_team') || '';
@@ -885,6 +911,7 @@
             state.answering = null;
             state.tried = [];
             state.timerStart = null;
+            state.activeTeam = Math.floor(Math.random() * state.teams.length);
             save();
         }
 
@@ -912,6 +939,7 @@
                 let cls = 'team-score';
                 if (t.name === myTeam) cls += ' my-team';
                 if (state.answering === i) cls += ' answering';
+                if (state.activeTeam === i && !state.current) cls += ' active';
                 return `<div class="${cls}">
                     <div class="name">${t.name}</div>
                     <div class="score">${t.score}</div>
@@ -919,6 +947,15 @@
             }).join('');
             
             document.getElementById('roundBadge').textContent = `KOLO ${state.round}`;
+            
+            // Показываем инфо о выборе
+            const info = document.getElementById('selectInfo');
+            if (state.activeTeam !== null && !state.current) {
+                info.style.display = 'block';
+                info.innerHTML = `Vybírá otázku: <span class="team">${state.teams[state.activeTeam].name}</span>`;
+            } else {
+                info.style.display = 'none';
+            }
         }
 
         function renderBoard() {
@@ -946,6 +983,13 @@
             
             if (state.used && state.used.includes(id)) return;
             if (state.current) return;
+            
+            // Проверяем, может ли текущая команда выбирать
+            const myIdx = state.teams.findIndex(t => t.name === myTeam);
+            if (state.activeTeam !== null && myIdx !== state.activeTeam) {
+                alert('Není vaše řada vybírat otázku!');
+                return;
+            }
             
             const q = questions[state.round][cat][idx];
             state.current = {
@@ -1041,6 +1085,7 @@
                 result.textContent = '✅ SPRÁVNĚ!';
                 result.className = 'result correct';
                 state.teams[myIdx].score += state.current.pts;
+                state.activeTeam = myIdx; // Команда выбирает следующий вопрос
                 
                 if (!state.used) state.used = [];
                 state.used.push(state.current.id);
@@ -1054,6 +1099,7 @@
                 result.className = 'result wrong';
                 state.teams[myIdx].score -= state.current.pts;
                 state.answering = null;
+                state.timerStart = Date.now(); // Перезапускаем таймер
                 save();
                 
                 setTimeout(() => {
