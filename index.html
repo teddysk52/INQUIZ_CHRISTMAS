@@ -698,6 +698,11 @@
     <!-- Модальное окно вопроса -->
     <div class="modal" id="questionModal">
         <div class="modal-content">
+            <div style="position: absolute; top: 20px; right: 20px;">
+                <button onclick="closeQuestionWithPassword()" style="width: 50px; height: 50px; background: rgba(255,255,255,0.1); 
+                    border: 2px solid rgba(255,255,255,0.3); border-radius: 50%; color: #fff; font-size: 1.5rem; 
+                    cursor: pointer; font-weight: 900;">✕</button>
+            </div>
             <div class="modal-category" id="modalCategory"></div>
             <div class="modal-points" id="modalPoints"></div>
             <div class="timer" id="timer">20</div>
@@ -1242,6 +1247,16 @@
             saveGame(); // Сохраняем чтобы все закрыли модалку
             document.getElementById('questionModal').classList.remove('active');
             renderScoreboard();
+        }
+
+        // Закрыть вопрос с паролем
+        function closeQuestionWithPassword() {
+            const password = prompt('Введите пароль для закрытия вопроса:');
+            if (password === '6952') {
+                closeQuestion();
+            } else {
+                alert('Неправильный пароль!');
+            }
         }
 
         // Пометить вопрос использованным
