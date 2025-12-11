@@ -769,6 +769,7 @@
         let isUpdatingFromFirebase = false;
         let myTeamIndex = null;
         let myTeamName = '';
+        let isFirstLoad = true;
 
         // Вопросы - Раунд 1
         const round1 = {
@@ -1363,6 +1364,20 @@
                     document.getElementById('gameScreen').style.display = 'block';
                     renderScoreboard();
                     renderGameBoard();
+                    
+                    // При первой загрузке - закрываем открытый вопрос если он есть
+                    if (isFirstLoad && gameState.currentQuestion) {
+                        gameState.currentQuestion = null;
+                        gameState.answeringTeam = null;
+                        gameState.attemptedTeams = [];
+                        gameState.timerActive = false;
+                        gameState.timerStartedAt = null;
+                        saveGame();
+                        isFirstLoad = false;
+                        return;
+                    }
+                    
+                    isFirstLoad = false;
                     
                     // Синхронизация модального окна
                     if (gameState.currentQuestion) {
