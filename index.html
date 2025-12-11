@@ -756,7 +756,8 @@
             answeringTeam: null,
             timeLeft: 20,
             attemptedTeams: [],
-            timerActive: false
+            timerActive: false,
+            timerStartedAt: null
         };
 
         let timerInterval = null;
@@ -1095,26 +1096,37 @@
         // Таймер
         function startTimer() {
             stopTimer();
-            gameState.timeLeft = 20;
-            gameState.timerActive = true;
-            saveGame();
+            
+            // Запускаем таймер только если мы первые кто открыл вопрос
+            if (!gameState.timerActive) {
+                gameState.timeLeft = 20;
+                gameState.timerActive = true;
+                gameState.timerStartedAt = Date.now();
+                saveGame();
+            }
+            
             updateTimerDisplay();
             
+            // Локальный интервал только для отображения
             timerInterval = setInterval(() => {
-                gameState.timeLeft--;
-                saveGame(); // Синхронизируем таймер
                 updateTimerDisplay();
-                
-                if (gameState.timeLeft <= 0) {
-                    stopTimer();
-                    showCorrectAnswer();
-                }
-            }, 1000);
+            }, 100);
         }
 
         function updateTimerDisplay() {
             const timer = document.getElementById('timer');
             if (!timer) return;
+            
+            // Вычисляем время на основе startedAt
+            if (gameState.timerActive && gameState.timerStartedAt) {
+                const elapsed = Math.floor((Date.now() - gameState.timerStartedAt) / 1000);
+                gameState.timeLeft = Math.max(0, 20 - elapsed);
+                
+                if (gameState.timeLeft <= 0 && timerInterval) {
+                    stopTimer();
+                    showCorrectAnswer();
+                }
+            }
             
             timer.textContent = gameState.timeLeft;
             
@@ -1131,8 +1143,11 @@
                 clearInterval(timerInterval);
                 timerInterval = null;
             }
-            gameState.timerActive = false;
-            saveGame();
+            if (gameState.timerActive) {
+                gameState.timerActive = false;
+                gameState.timerStartedAt = null;
+                saveGame();
+            }
         }
 
         // Нажатие кнопки "Ответить"
@@ -1265,7 +1280,8 @@
                         answeringTeam: null,
                         timeLeft: 20,
                         attemptedTeams: [],
-                        timerActive: false
+                        timerActive: false,
+                        timerStartedAt: null
                     };
                     myTeamIndex = null;
                     myTeamName = '';
@@ -1297,7 +1313,8 @@
                     answeringTeam: null,
                     timeLeft: 20,
                     attemptedTeams: [],
-                    timerActive: false
+                    timerActive: false,
+                    timerStartedAt: null
                 };
                 renderTeamsList();
                 return;
@@ -1316,7 +1333,8 @@
                     answeringTeam: data.answeringTeam !== undefined ? data.answeringTeam : null,
                     timeLeft: data.timeLeft || 20,
                     attemptedTeams: data.attemptedTeams || [],
-                    timerActive: data.timerActive || false
+                    timerActive: data.timerActive || false,
+                    timerStartedAt: data.timerStartedAt || null
                 };
                 
                 // Восстанавливаем мою команду
@@ -1338,11 +1356,11 @@
                         }
                         updateTimerDisplay();
                         
-                        // Запускаем таймер только если он активен и еще не запущен
-                        if (gameState.timerActive && !timerInterval && gameState.timeLeft > 0) {
+                        // Запускаем локальный таймер для отображения если его еще нет
+                        if (!timerInterval) {
                             timerInterval = setInterval(() => {
                                 updateTimerDisplay();
-                            }, 1000);
+                            }, 100);
                         }
                     } else {
                         document.getElementById('questionModal').classList.remove('active');
