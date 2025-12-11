@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>INQUIZ 🎄</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <title>INQUIZ 🎄 Vánoční Speciál</title>
+    <link href="https://fonts.googleapis.com/css2?family=Mountains+of+Christmas:wght@700&family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
     
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
@@ -18,59 +18,183 @@
 
         body {
             font-family: 'Inter', sans-serif;
-            background: linear-gradient(180deg, #0a1628 0%, #1a2a4a 100%);
+            background: linear-gradient(180deg, #0f172a 0%, #1e293b 50%, #334155 100%);
             min-height: 100vh;
             color: #fff;
-            padding: 20px;
+            overflow-x: hidden;
+            position: relative;
         }
 
+        /* СНЕЖИНКИ */
+        .snowflakes {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 9998;
+        }
+
+        .snowflake {
+            position: absolute;
+            top: -20px;
+            color: #fff;
+            font-size: 1rem;
+            animation: fall linear infinite;
+            opacity: 0.8;
+            text-shadow: 0 0 5px rgba(255,255,255,0.5);
+        }
+
+        @keyframes fall {
+            0% { transform: translateY(-20px) rotate(0deg); }
+            100% { transform: translateY(100vh) rotate(360deg); }
+        }
+
+        /* ГИРЛЯНДА */
+        .garland {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 30px;
+            display: flex;
+            justify-content: space-around;
+            z-index: 9999;
+            background: linear-gradient(180deg, rgba(15,23,42,0.9) 0%, transparent 100%);
+        }
+
+        .light {
+            width: 15px;
+            height: 20px;
+            border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+            animation: glow 1.5s infinite;
+        }
+
+        @keyframes glow {
+            0%, 100% { opacity: 1; filter: brightness(1.8) drop-shadow(0 0 10px currentColor); }
+            50% { opacity: 0.5; }
+        }
+
+        .light:nth-child(6n+1) { background: #ef4444; color: #ef4444; animation-delay: 0s; }
+        .light:nth-child(6n+2) { background: #22c55e; color: #22c55e; animation-delay: 0.25s; }
+        .light:nth-child(6n+3) { background: #fbbf24; color: #fbbf24; animation-delay: 0.5s; }
+        .light:nth-child(6n+4) { background: #3b82f6; color: #3b82f6; animation-delay: 0.75s; }
+        .light:nth-child(6n+5) { background: #a855f7; color: #a855f7; animation-delay: 1s; }
+        .light:nth-child(6n) { background: #ec4899; color: #ec4899; animation-delay: 1.25s; }
+
+        /* ДЕД МОРОЗ НА САНЯХ */
+        .santa {
+            position: fixed;
+            top: 15%;
+            left: -200px;
+            font-size: 3rem;
+            z-index: 9997;
+            animation: santaFly 20s linear infinite;
+        }
+
+        @keyframes santaFly {
+            0% { left: -200px; }
+            100% { left: 110%; }
+        }
+
+        /* КОНТЕЙНЕР */
         .container {
             max-width: 1400px;
             margin: 0 auto;
+            padding: 50px 20px 20px;
+            position: relative;
+            z-index: 1;
         }
 
         h1 {
             text-align: center;
-            font-size: 3rem;
+            font-family: 'Mountains of Christmas', cursive;
+            font-size: 4rem;
             color: #ffd700;
-            margin-bottom: 20px;
+            margin-bottom: 10px;
+            text-shadow: 0 0 20px rgba(255,215,0,0.5), 0 0 40px rgba(255,215,0,0.3);
+            animation: titleGlow 2s ease-in-out infinite;
+        }
+
+        @keyframes titleGlow {
+            0%, 100% { text-shadow: 0 0 20px rgba(255,215,0,0.5), 0 0 40px rgba(255,215,0,0.3); }
+            50% { text-shadow: 0 0 30px rgba(255,215,0,0.8), 0 0 60px rgba(255,215,0,0.5); }
+        }
+
+        h2 {
+            text-align: center;
+            font-size: 1.5rem;
+            color: rgba(255,255,255,0.8);
+            margin-bottom: 40px;
         }
 
         /* ЛОББИ */
         #lobby {
             text-align: center;
-            padding: 50px 20px;
+            padding: 20px;
         }
 
         .input-field {
-            padding: 15px;
-            font-size: 1.2rem;
-            border: 2px solid #ffd700;
-            border-radius: 10px;
+            padding: 18px 25px;
+            font-size: 1.3rem;
+            border: 3px solid #ffd700;
+            border-radius: 15px;
             background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
             color: #fff;
-            width: 300px;
+            width: 100%;
+            max-width: 400px;
             margin: 10px;
+            font-weight: 600;
+            text-align: center;
+            transition: all 0.3s;
+        }
+
+        .input-field:focus {
+            outline: none;
+            border-color: #22c55e;
+            box-shadow: 0 0 20px rgba(34,197,94,0.5);
+        }
+
+        .input-field::placeholder {
+            color: rgba(255,255,255,0.5);
         }
 
         .btn {
-            padding: 15px 40px;
-            font-size: 1.2rem;
+            padding: 18px 50px;
+            font-size: 1.3rem;
             font-weight: 700;
             border: none;
-            border-radius: 10px;
+            border-radius: 50px;
             cursor: pointer;
             margin: 10px;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
 
         .btn-green {
-            background: #22c55e;
+            background: linear-gradient(135deg, #22c55e, #16a34a);
             color: #fff;
+            box-shadow: 0 10px 30px rgba(34,197,94,0.4);
+        }
+
+        .btn-green:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(34,197,94,0.6);
         }
 
         .btn-red {
-            background: #ef4444;
+            background: linear-gradient(135deg, #ef4444, #dc2626);
             color: #fff;
+            border: 3px solid #ffd700;
+            box-shadow: 0 10px 30px rgba(239,68,68,0.4);
+        }
+
+        .btn-red:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(239,68,68,0.6);
         }
 
         .btn-gray {
@@ -79,18 +203,38 @@
             border: 2px solid rgba(255,255,255,0.3);
         }
 
+        .btn-gray:hover {
+            background: rgba(255,255,255,0.2);
+            transform: translateY(-2px);
+        }
+
         .teams-list {
             margin: 30px auto;
-            max-width: 500px;
+            max-width: 600px;
+        }
+
+        .teams-title {
+            font-size: 1.3rem;
+            color: rgba(255,255,255,0.7);
+            margin-bottom: 20px;
         }
 
         .team-item {
-            padding: 15px;
-            margin: 10px 0;
-            background: rgba(255,255,255,0.1);
-            border: 2px solid rgba(255,255,255,0.2);
-            border-radius: 10px;
-            font-size: 1.2rem;
+            padding: 18px 30px;
+            margin: 12px 0;
+            background: linear-gradient(135deg, rgba(255,255,255,0.15), rgba(255,255,255,0.05));
+            border: 2px solid rgba(255,255,255,0.3);
+            border-radius: 15px;
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #ffd700;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s;
+        }
+
+        .team-item:hover {
+            transform: translateX(5px);
+            border-color: #ffd700;
         }
 
         /* ИГРА */
@@ -107,93 +251,137 @@
         }
 
         .team-card {
-            background: rgba(255,255,255,0.1);
+            background: linear-gradient(135deg, rgba(255,255,255,0.15), rgba(255,255,255,0.05));
             border: 3px solid rgba(255,255,255,0.3);
-            border-radius: 15px;
-            padding: 15px 25px;
-            min-width: 150px;
+            border-radius: 20px;
+            padding: 20px 30px;
+            min-width: 160px;
             text-align: center;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s;
         }
 
         .team-card.active {
             border-color: #3b82f6;
-            box-shadow: 0 0 30px rgba(59,130,246,0.5);
+            background: linear-gradient(135deg, rgba(59,130,246,0.3), rgba(59,130,246,0.1));
+            box-shadow: 0 0 40px rgba(59,130,246,0.6);
+            transform: scale(1.05);
         }
 
         .team-card.answering {
             border-color: #22c55e;
-            animation: pulse 0.5s infinite;
+            background: linear-gradient(135deg, rgba(34,197,94,0.3), rgba(34,197,94,0.1));
+            animation: pulse 0.6s infinite;
         }
 
         @keyframes pulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.05); }
+            0%, 100% { transform: scale(1); box-shadow: 0 0 30px rgba(34,197,94,0.5); }
+            50% { transform: scale(1.08); box-shadow: 0 0 50px rgba(34,197,94,0.8); }
         }
 
         .team-name {
-            font-size: 0.9rem;
-            color: rgba(255,255,255,0.7);
-            margin-bottom: 5px;
+            font-size: 1rem;
+            color: rgba(255,255,255,0.8);
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
 
         .team-score {
-            font-size: 2rem;
+            font-size: 2.5rem;
             font-weight: 900;
             color: #ffd700;
+            text-shadow: 0 0 15px rgba(255,215,0,0.5);
         }
 
         .info-banner {
             text-align: center;
-            padding: 15px;
-            background: rgba(59,130,246,0.2);
-            border: 2px solid #3b82f6;
-            border-radius: 10px;
-            margin-bottom: 20px;
-            font-size: 1.2rem;
+            padding: 20px;
+            background: linear-gradient(135deg, rgba(59,130,246,0.3), rgba(59,130,246,0.1));
+            border: 3px solid #3b82f6;
+            border-radius: 20px;
+            margin-bottom: 25px;
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: #60a5fa;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 10px 40px rgba(59,130,246,0.3);
+        }
+
+        .info-banner strong {
+            color: #ffd700;
+            font-size: 1.6rem;
         }
 
         .board {
             display: grid;
             grid-template-columns: repeat(5, 1fr);
-            gap: 10px;
+            gap: 12px;
         }
 
         .category {
-            background: linear-gradient(145deg, #c41e3a, #8b0000);
+            background: linear-gradient(135deg, #dc2626, #991b1b);
             padding: 20px 10px;
             text-align: center;
-            border-radius: 10px;
+            border-radius: 15px;
             font-weight: 700;
-            font-size: 0.85rem;
+            font-size: 0.9rem;
             text-transform: uppercase;
-            min-height: 80px;
+            letter-spacing: 1px;
+            min-height: 90px;
             display: flex;
             align-items: center;
             justify-content: center;
+            box-shadow: 0 5px 20px rgba(220,38,38,0.4);
+            border: 2px solid rgba(255,255,255,0.2);
         }
 
         .cell {
-            background: linear-gradient(145deg, #1e5128, #2d7a3a);
-            border: 2px solid rgba(255,255,255,0.2);
-            padding: 30px;
+            background: linear-gradient(135deg, #16a34a, #15803d);
+            border: 3px solid rgba(255,255,255,0.2);
+            padding: 35px;
             text-align: center;
-            border-radius: 10px;
+            border-radius: 15px;
             font-weight: 900;
-            font-size: 1.5rem;
+            font-size: 2rem;
             color: #ffd700;
             cursor: pointer;
             transition: all 0.3s;
+            box-shadow: 0 5px 20px rgba(22,163,74,0.4);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .cell::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: rgba(255,255,255,0.3);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: width 0.4s, height 0.4s;
+        }
+
+        .cell:hover:not(.used)::before {
+            width: 200%;
+            height: 200%;
         }
 
         .cell:hover:not(.used) {
-            transform: scale(1.05);
+            transform: scale(1.08) rotate(2deg);
             border-color: #ffd700;
+            box-shadow: 0 10px 40px rgba(255,215,0,0.6);
         }
 
         .cell.used {
-            background: rgba(50,50,50,0.5);
+            background: linear-gradient(135deg, rgba(50,50,50,0.6), rgba(30,30,30,0.6));
             color: rgba(255,255,255,0.2);
             cursor: not-allowed;
+            border-color: rgba(255,255,255,0.1);
+            box-shadow: none;
         }
 
         /* МОДАЛКА */
@@ -205,7 +393,7 @@
             width: 100%;
             height: 100%;
             background: rgba(0,0,0,0.95);
-            z-index: 9999;
+            z-index: 10000;
             align-items: center;
             justify-content: center;
             padding: 20px;
@@ -216,159 +404,229 @@
         }
 
         .modal-box {
-            background: linear-gradient(145deg, #1a2a4a, #0a1628);
-            border: 3px solid rgba(255,215,0,0.3);
-            border-radius: 25px;
-            padding: 40px;
-            max-width: 800px;
+            background: linear-gradient(135deg, #1e293b, #0f172a);
+            border: 4px solid rgba(255,215,0,0.4);
+            border-radius: 30px;
+            padding: 50px;
+            max-width: 900px;
             width: 100%;
             text-align: center;
             position: relative;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.8);
+            backdrop-filter: blur(20px);
         }
 
         .close-btn {
             position: absolute;
-            top: 15px;
-            right: 15px;
-            width: 50px;
-            height: 50px;
+            top: 20px;
+            right: 20px;
+            width: 60px;
+            height: 60px;
             background: rgba(255,255,255,0.1);
-            border: 2px solid rgba(255,255,255,0.3);
+            border: 3px solid rgba(255,255,255,0.3);
             border-radius: 50%;
             color: #fff;
-            font-size: 1.5rem;
+            font-size: 2rem;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
+            transition: all 0.3s;
+        }
+
+        .close-btn:hover {
+            background: rgba(239,68,68,0.3);
+            border-color: #ef4444;
+            transform: rotate(90deg);
         }
 
         .modal-pts {
-            font-size: 4rem;
+            font-size: 5rem;
             font-weight: 900;
             color: #ffd700;
-            margin-bottom: 20px;
+            margin-bottom: 25px;
+            text-shadow: 0 0 30px rgba(255,215,0,0.6);
         }
 
         .timer {
-            font-size: 3rem;
+            font-size: 4rem;
             font-weight: 900;
             color: #4ade80;
-            margin-bottom: 20px;
+            margin-bottom: 25px;
+            text-shadow: 0 0 20px rgba(74,222,128,0.5);
         }
 
-        .timer.warning { color: #fbbf24; }
-        .timer.danger { color: #ef4444; }
+        .timer.warning { 
+            color: #fbbf24; 
+            text-shadow: 0 0 20px rgba(251,191,36,0.5);
+        }
+        
+        .timer.danger { 
+            color: #ef4444; 
+            text-shadow: 0 0 20px rgba(239,68,68,0.5);
+            animation: blink 0.5s infinite; 
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.4; }
+        }
 
         .question {
-            font-size: 1.8rem;
-            margin-bottom: 30px;
-            line-height: 1.5;
+            font-size: 2rem;
+            margin-bottom: 35px;
+            line-height: 1.6;
+            color: #e2e8f0;
         }
 
         .buzz-btn {
-            width: 180px;
-            height: 180px;
-            background: linear-gradient(145deg, #ef4444, #dc2626);
-            border: 5px solid #ffd700;
+            width: 200px;
+            height: 200px;
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            border: 6px solid #ffd700;
             border-radius: 50%;
-            font-size: 1.2rem;
+            font-size: 1.4rem;
             font-weight: 900;
             color: #fff;
             cursor: pointer;
-            margin: 20px auto;
+            margin: 25px auto;
             display: flex;
             align-items: center;
             justify-content: center;
-            box-shadow: 0 10px 30px rgba(239,68,68,0.4);
+            flex-direction: column;
+            box-shadow: 0 15px 50px rgba(239,68,68,0.5);
+            transition: all 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 2px;
         }
 
         .buzz-btn:hover:not(.disabled) {
-            transform: scale(1.1);
+            transform: scale(1.12);
+            box-shadow: 0 20px 60px rgba(239,68,68,0.7);
+        }
+
+        .buzz-btn:active:not(.disabled) {
+            transform: scale(1.05);
         }
 
         .buzz-btn.disabled {
-            background: rgba(100,100,100,0.5);
+            background: linear-gradient(135deg, rgba(100,100,100,0.5), rgba(70,70,70,0.5));
             border-color: rgba(255,255,255,0.2);
             cursor: not-allowed;
+            box-shadow: none;
         }
 
         .answer-input {
             width: 100%;
-            max-width: 500px;
-            padding: 20px;
-            font-size: 1.5rem;
+            max-width: 550px;
+            padding: 22px 30px;
+            font-size: 1.6rem;
             text-align: center;
             background: rgba(255,255,255,0.1);
-            border: 3px solid #ffd700;
-            border-radius: 15px;
+            border: 4px solid #ffd700;
+            border-radius: 20px;
             color: #fff;
             margin-bottom: 20px;
+            font-weight: 600;
+            backdrop-filter: blur(10px);
+        }
+
+        .answer-input:focus {
+            outline: none;
+            border-color: #22c55e;
+            box-shadow: 0 0 30px rgba(34,197,94,0.5);
         }
 
         .result {
-            font-size: 2rem;
+            font-size: 2.5rem;
             font-weight: 900;
-            padding: 20px;
-            border-radius: 15px;
-            margin: 20px 0;
+            padding: 25px;
+            border-radius: 20px;
+            margin: 25px 0;
         }
 
         .result.correct {
-            background: rgba(34,197,94,0.2);
-            border: 3px solid #22c55e;
+            background: rgba(34,197,94,0.3);
+            border: 4px solid #22c55e;
             color: #22c55e;
+            text-shadow: 0 0 20px rgba(34,197,94,0.5);
         }
 
         .result.wrong {
-            background: rgba(239,68,68,0.2);
-            border: 3px solid #ef4444;
+            background: rgba(239,68,68,0.3);
+            border: 4px solid #ef4444;
             color: #ef4444;
+            text-shadow: 0 0 20px rgba(239,68,68,0.5);
         }
 
         .hidden { display: none !important; }
 
         .admin-btn {
             position: fixed;
-            bottom: 20px;
-            right: 20px;
-            width: 60px;
-            height: 60px;
+            bottom: 25px;
+            right: 25px;
+            width: 70px;
+            height: 70px;
             background: rgba(255,255,255,0.1);
-            border: 2px solid rgba(255,255,255,0.3);
+            border: 3px solid rgba(255,255,255,0.3);
             border-radius: 50%;
             color: #fff;
-            font-size: 1.5rem;
+            font-size: 2rem;
             cursor: pointer;
-            z-index: 1000;
+            z-index: 9996;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s;
+        }
+
+        .admin-btn:hover {
+            background: rgba(255,255,255,0.2);
+            transform: rotate(180deg);
         }
 
         @media (max-width: 768px) {
-            h1 { font-size: 2rem; }
-            .board { gap: 5px; }
-            .category { font-size: 0.7rem; padding: 10px 5px; min-height: 60px; }
-            .cell { padding: 15px; font-size: 1.2rem; }
-            .modal-box { padding: 30px 20px; }
-            .question { font-size: 1.3rem; }
-            .buzz-btn { width: 150px; height: 150px; }
+            h1 { font-size: 2.5rem; }
+            h2 { font-size: 1.2rem; }
+            .board { gap: 6px; }
+            .category { font-size: 0.7rem; padding: 12px 6px; min-height: 70px; }
+            .cell { padding: 20px; font-size: 1.4rem; }
+            .modal-box { padding: 35px 20px; }
+            .modal-pts { font-size: 3.5rem; }
+            .timer { font-size: 3rem; }
+            .question { font-size: 1.4rem; }
+            .buzz-btn { width: 160px; height: 160px; font-size: 1.1rem; }
+            .team-card { min-width: 130px; padding: 15px 20px; }
+            .team-score { font-size: 2rem; }
         }
     </style>
 </head>
 <body>
+    <!-- Дед Мороз -->
+    <div class="santa">🎅🛷</div>
+
+    <!-- Гирлянда -->
+    <div class="garland" id="garland"></div>
+    
+    <!-- Снежинки -->
+    <div class="snowflakes" id="snowflakes"></div>
+
+    <!-- Админ -->
     <button class="admin-btn" onclick="adminReset()">⚙️</button>
 
     <!-- ЛОББИ -->
-    <div id="lobby">
+    <div id="lobby" class="container">
         <h1>🎄 INQUIZ 🎄</h1>
-        <h2>Vánoční Speciál</h2>
+        <h2>Vánoční Speciál ❄️</h2>
         
         <input type="text" id="teamInput" class="input-field" placeholder="Název týmu..." maxlength="20">
         <br>
         <button class="btn btn-green" onclick="addTeam()">➕ Přidat tým</button>
         
-        <div class="teams-list" id="teamsList"></div>
+        <div class="teams-list">
+            <div class="teams-title">Týmy v lobby:</div>
+            <div id="teamsList"></div>
+        </div>
         
-        <input type="password" id="passInput" class="input-field" placeholder="Heslo (6952)" maxlength="4" style="width: 200px;">
+        <input type="password" id="passInput" class="input-field" placeholder="Heslo: 6952" maxlength="4" style="width: 250px; letter-spacing: 5px;">
         <br>
         <button class="btn btn-red" onclick="startGame()">🚀 ZAČÍT HRU</button>
         <br>
@@ -392,20 +650,22 @@
             <div class="timer" id="timer">20</div>
             <div class="question" id="question"></div>
             
-            <div id="answeringInfo" class="hidden">
-                Odpovídá: <strong id="answeringTeam"></strong>
+            <div id="answeringInfo" class="hidden" style="font-size: 1.4rem; color: rgba(255,255,255,0.8); margin-bottom: 20px;">
+                Odpovídá: <strong id="answeringTeam" style="color: #ffd700; font-size: 1.6rem;"></strong>
             </div>
             
-            <button class="buzz-btn" id="buzzBtn" onclick="buzz()">🔔<br>ODPOVĚDĚT</button>
+            <button class="buzz-btn" id="buzzBtn" onclick="buzzClick()">
+                🔔<br>ODPOVĚDĚT
+            </button>
             
             <div id="answerSection" class="hidden">
                 <input type="text" id="answerInput" class="answer-input" placeholder="Vaše odpověď...">
                 <br>
-                <button class="btn btn-green" onclick="submitAnswer()">Odeslat</button>
+                <button class="btn btn-green" onclick="submitAnswer()">Odeslat odpověď</button>
             </div>
             
             <div id="result" class="result hidden"></div>
-            <div id="correctAnswer" class="hidden" style="margin-top: 20px; color: #4ade80; font-size: 1.2rem;"></div>
+            <div id="correctAnswer" class="hidden" style="margin-top: 25px; padding: 20px; background: rgba(74,222,128,0.2); border: 3px solid #4ade80; border-radius: 15px; color: #4ade80; font-size: 1.4rem; font-weight: 700;"></div>
         </div>
     </div>
 
@@ -421,45 +681,45 @@
             appId: "1:943129879818:web:366e32fe072182cd0d86f3"
         };
         firebase.initializeApp(firebaseConfig);
-        const db = firebase.database().ref('game3');
+        const db = firebase.database().ref('game4');
 
-        // Вопросы
+        // КРУТЫЕ ВОПРОСЫ
         const Q = {
             1: {
-                "Minecraft 🎮": [
-                    {q: "Jak se jmenuje hlavní boss?", a: ["ender dragon", "enderdragon"]},
-                    {q: "Kolik bloků obsidiánu na portál?", a: ["10", "deset"]},
-                    {q: "Dimenze s Endermany?", a: ["the end", "end"]},
-                    {q: "Čím ochočíš vlka?", a: ["kost", "bone"]},
-                    {q: "Rok vydání Minecraft 1.0?", a: ["2011"]}
+                "TikTok & Trendy 🔥": [
+                    {q: "Které zvíře se stalo symbolem 'Skibidi'?", a: ["záchod", "toilet", "wc"]},
+                    {q: "Co znamená 'rizz'?", a: ["charisma", "charizmatický", "přitažlivost"]},
+                    {q: "Kdo je populární streamer s maskami?", a: ["dream"]},
+                    {q: "Trend kde stojíš jako socha?", a: ["mannequin challenge"]},
+                    {q: "Aplikace s 60s videi?", a: ["tiktok"]}
                 ],
-                "IT 💻": [
-                    {q: "Chyba v kódu?", a: ["bug", "chyba"]},
-                    {q: "Jazyk pojmenovaný po kávě?", a: ["java"]},
-                    {q: "Co znamená HTML?", a: ["hypertext markup language"]},
-                    {q: "Operátor porovnání?", a: ["=="]},
-                    {q: "LIFO struktura?", a: ["stack", "zásobník"]}
+                "Gaming Legends 🎮": [
+                    {q: "Survival hra s červenými a žlutými dřevy?", a: ["minecraft"]},
+                    {q: "Battle royale kde stavíš?", a: ["fortnite"]},
+                    {q: "Hra kde jsi Among Us?", a: ["among us", "impostor"]},
+                    {q: "Nejpopulárnější FPS s AK-47?", a: ["cs", "csgo", "cs2", "counter-strike"]},
+                    {q: "Hra s Creepery a TNT?", a: ["minecraft"]}
                 ],
-                "Tech 🖥️": [
-                    {q: "Co je USB?", a: ["universal serial bus"]},
-                    {q: "Kdo vytvořil iPhone?", a: ["apple"]},
-                    {q: "Co je RAM?", a: ["paměť", "random access memory"]},
-                    {q: "Rok založení Google?", a: ["1998"]},
-                    {q: "Bezpečný protokol webu?", a: ["https"]}
+                "Sigma Males 💪": [
+                    {q: "Co je 'sigma grindset'?", a: ["mindset", "způsob života", "mentalita"]},
+                    {q: "Fitness influencer 'Liver King'?", a: ["brian johnson", "liver king"]},
+                    {q: "Meme 'Can you feel my...'?", a: ["heart"]},
+                    {q: "Co znamená 'mewing'?", a: ["čelist", "tongue posture", "jazyk"]},
+                    {q: "Famous citát: 'It's about...'?", a: ["drive", "power"]}
                 ],
-                "Memes 😂": [
-                    {q: "Vtipný obrázek na netu?", a: ["meme"]},
-                    {q: "Kočka u stolu?", a: ["woman yelling at cat"]},
-                    {q: "Co je rickrolling?", a: ["rick astley", "never gonna give you up"]},
-                    {q: "Pes Doge?", a: ["shiba", "shiba inu"]},
-                    {q: "Co je LOL?", a: ["laughing out loud", "lol"]}
+                "Meme Culture 😂": [
+                    {q: "Pes meme 'wow such...'?", a: ["doge", "shiba"]},
+                    {q: "Žába která křičí 'AAAAA'?", a: ["pepe"]},
+                    {q: "Meme s hudbou Rick Astley?", a: ["rickroll", "never gonna give you up"]},
+                    {q: "Bílá kočka co křičí na ženu?", a: ["woman yelling at cat"]},
+                    {q: "SpongeBob když je...'?", a: ["mocking", "sarcastic"]}
                 ],
-                "Vánoce 🎄": [
-                    {q: "Sob s červeným nosem?", a: ["rudolf"]},
-                    {q: "Země vánočního stromku?", a: ["německo", "germany"]},
-                    {q: "Nápoj z mléka a vajec?", a: ["eggnog"]},
-                    {q: "Kolik sobů (bez Rudolfa)?", a: ["8", "osm"]},
-                    {q: "Kalendář s okénky?", a: ["adventní", "advent"]}
+                "Vánoce & Zima 🎄": [
+                    {q: "Sob Santy s červeným nosem?", a: ["rudolf"]},
+                    {q: "Film 'Sám doma' hlavní postava?", a: ["kevin"]},
+                    {q: "Kolik rentiérů má Santa?", a: ["9", "devět"]},
+                    {q: "Vánoční nápoj s vajíčky?", a: ["eggnog"]},
+                    {q: "Datum Štědrého dne?", a: ["24", "24 prosinec", "24. prosince"]}
                 ]
             }
         };
@@ -468,7 +728,7 @@
 
         // State
         let game = {};
-        let myTeam = localStorage.getItem('myTeam') || '';
+        let myTeam = localStorage.getItem('myTeam4') || '';
         let timer = null;
 
         // Init
@@ -509,42 +769,42 @@
         function renderTeamsList() {
             const list = document.getElementById('teamsList');
             if (!game.teams || game.teams.length === 0) {
-                list.innerHTML = '<div style="color: rgba(255,255,255,0.5)">Žádné týmy...</div>';
+                list.innerHTML = '<div style="color: rgba(255,255,255,0.5); font-size: 1.2rem;">Zatím žádné týmy...</div>';
                 return;
             }
             list.innerHTML = game.teams.map((t, i) => 
-                `<div class="team-item">${i+1}. ${t.name} - ${t.score} bodů</div>`
+                `<div class="team-item">${i+1}. ${t.name} <span style="float: right;">${t.score} bodů</span></div>`
             ).join('');
         }
 
         function addTeam() {
             const input = document.getElementById('teamInput');
             const name = input.value.trim();
-            if (!name) return alert('Zadejte název!');
+            if (!name) return alert('Zadejte název týmu!');
             
             if (!game.teams) game.teams = [];
-            if (game.teams.some(t => t.name === name)) return alert('Už existuje!');
+            if (game.teams.some(t => t.name === name)) return alert('Tým už existuje!');
             
             game.teams.push({name, score: 0});
             myTeam = name;
-            localStorage.setItem('myTeam', name);
+            localStorage.setItem('myTeam4', name);
             input.value = '';
             save();
         }
 
         function clearAll() {
             const pass = prompt('Heslo:');
-            if (pass !== '6952') return;
+            if (pass !== '6952') return alert('Špatné heslo!');
             game = {started: false, teams: [], used: []};
             myTeam = '';
-            localStorage.removeItem('myTeam');
+            localStorage.removeItem('myTeam4');
             save();
         }
 
         function startGame() {
             const pass = document.getElementById('passInput').value;
             if (pass !== '6952') return alert('Špatné heslo!');
-            if (!game.teams || game.teams.length === 0) return alert('Přidejte týmy!');
+            if (!game.teams || game.teams.length === 0) return alert('Přidejte alespoň jeden tým!');
             
             game.started = true;
             game.round = 1;
@@ -570,7 +830,7 @@
             const info = document.getElementById('infoBanner');
             if (game.activeTeam !== null && !game.current) {
                 info.style.display = 'block';
-                info.innerHTML = `<strong>${game.teams[game.activeTeam].name}</strong> vybírá otázku`;
+                info.innerHTML = `<strong>${game.teams[game.activeTeam].name}</strong> vybírá otázku 👆`;
             } else {
                 info.style.display = 'none';
             }
@@ -603,7 +863,7 @@
             
             const myIdx = game.teams.findIndex(t => t.name === myTeam);
             if (game.activeTeam !== null && myIdx !== game.activeTeam) {
-                return alert('Není vaše řada!');
+                return alert('Není vaše řada vybírat!');
             }
             
             const q = Q[game.round][cat][idx];
@@ -660,10 +920,10 @@
             }
         }
 
-        function buzz() {
+        function buzzClick() {
             const myIdx = game.teams.findIndex(t => t.name === myTeam);
-            if (myIdx === -1) return;
-            if (game.answering !== null) return;
+            if (myIdx === -1) return alert('Nejste v žádném týmu!');
+            if (game.answering !== null && game.answering !== undefined) return;
             if (game.tried && game.tried.includes(myIdx)) return;
             
             game.answering = myIdx;
@@ -677,7 +937,7 @@
             if (game.answering !== myIdx) return;
             
             const input = document.getElementById('answerInput').value.trim().toLowerCase();
-            if (!input) return;
+            if (!input) return alert('Zadejte odpověď!');
             
             const correct = game.current.a.some(a => {
                 const ans = a.toLowerCase();
@@ -725,7 +985,7 @@
             document.getElementById('answerSection').classList.add('hidden');
             
             const ca = document.getElementById('correctAnswer');
-            ca.textContent = 'Správná odpověď: ' + game.current.a[0];
+            ca.textContent = '✅ Správná odpověď: ' + game.current.a[0];
             ca.classList.remove('hidden');
             
             if (!game.used) game.used = [];
@@ -741,8 +1001,8 @@
         }
 
         function closeQuestion() {
-            const pass = prompt('Heslo:');
-            if (pass !== '6952') return;
+            const pass = prompt('Heslo pro zavření:');
+            if (pass !== '6952') return alert('Špatné heslo!');
             
             if (game.current) {
                 if (!game.used) game.used = [];
@@ -782,18 +1042,51 @@
         // АДМИН
         function adminReset() {
             const pass = prompt('Admin heslo:');
-            if (pass !== '6952') return;
+            if (pass !== '6952') return alert('Špatné heslo!');
             
-            const cmd = prompt('reset - úplný reset\nlobby - zpět do lobby');
+            const cmd = prompt('Příkazy:\nreset - úplný reset\nlobby - zpět do lobby\nscores - upravit body');
+            
             if (cmd === 'reset') {
                 game = {started: false, teams: [], used: []};
                 myTeam = '';
-                localStorage.removeItem('myTeam');
+                localStorage.removeItem('myTeam4');
                 save();
             } else if (cmd === 'lobby') {
                 game.started = false;
                 game.current = null;
                 save();
+            } else if (cmd === 'scores') {
+                const teamName = prompt('Název týmu:');
+                const team = game.teams.find(t => t.name.toLowerCase() === teamName.toLowerCase());
+                if (!team) return alert('Tým nenalezen!');
+                const newScore = prompt('Nové body:', team.score);
+                if (newScore !== null) {
+                    team.score = parseInt(newScore) || 0;
+                    save();
+                }
+            }
+        }
+
+        // Dekorace
+        function createGarland() {
+            const g = document.getElementById('garland');
+            for (let i = 0; i < 40; i++) {
+                g.innerHTML += '<div class="light"></div>';
+            }
+        }
+
+        function createSnowflakes() {
+            const s = document.getElementById('snowflakes');
+            const flakes = ['❄', '❅', '❆', '✻', '✼', '❉'];
+            for (let i = 0; i < 50; i++) {
+                const f = document.createElement('div');
+                f.className = 'snowflake';
+                f.innerHTML = flakes[Math.floor(Math.random() * flakes.length)];
+                f.style.left = Math.random() * 100 + '%';
+                f.style.animationDuration = (3 + Math.random() * 5) + 's';
+                f.style.animationDelay = Math.random() * 5 + 's';
+                f.style.fontSize = (10 + Math.random() * 15) + 'px';
+                s.appendChild(f);
             }
         }
 
@@ -804,6 +1097,10 @@
         document.getElementById('answerInput').addEventListener('keypress', e => {
             if (e.key === 'Enter') submitAnswer();
         });
+
+        // Старт
+        createGarland();
+        createSnowflakes();
     </script>
 </body>
 </html>
