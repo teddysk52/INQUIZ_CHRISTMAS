@@ -1266,7 +1266,25 @@
         // Синхронизация с Firebase
         gameRef.on('value', (snapshot) => {
             const data = snapshot.val();
-            if (data && !isUpdatingFromFirebase) {
+            
+            // Если данных нет - инициализируем пустое состояние
+            if (!data) {
+                gameState = {
+                    gameStarted: false,
+                    teams: [],
+                    currentRound: 1,
+                    usedQuestions: [],
+                    currentQuestion: null,
+                    answeringTeam: null,
+                    timeLeft: 20,
+                    attemptedTeams: [],
+                    timerActive: false
+                };
+                renderTeamsList();
+                return;
+            }
+            
+            if (!isUpdatingFromFirebase) {
                 isUpdatingFromFirebase = true;
                 
                 // Полностью берем состояние из Firebase
