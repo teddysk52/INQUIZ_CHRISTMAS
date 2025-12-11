@@ -692,6 +692,7 @@
         let isUpdatingFromFirebase = false;
         let myTeamIndex = null;
         let hasAttemptedAnswer = false;
+        let isInitialLoad = true;
 
         // Вопросы - Раунд 1
         const round1 = {
@@ -1178,11 +1179,24 @@
                 renderScoreboard();
                 renderGameBoard();
                 
-                // Синхронизация модального окна
-                if (gameState.currentQuestion && !document.getElementById('questionModal').classList.contains('active')) {
-                    showQuestionModal();
-                } else if (!gameState.currentQuestion && document.getElementById('questionModal').classList.contains('active')) {
-                    document.getElementById('questionModal').classList.remove('active');
+                // Синхронизация модального окна (но не при первой загрузке)
+                if (!isInitialLoad) {
+                    if (gameState.currentQuestion && !document.getElementById('questionModal').classList.contains('active')) {
+                        showQuestionModal();
+                    } else if (!gameState.currentQuestion && document.getElementById('questionModal').classList.contains('active')) {
+                        document.getElementById('questionModal').classList.remove('active');
+                    }
+                }
+                
+                // После первой загрузки очищаем старый вопрос если он есть
+                if (isInitialLoad && gameState.currentQuestion) {
+                    gameState.currentQuestion = null;
+                    gameState.answeringTeam = null;
+                    gameState.attemptedTeams = [];
+                    saveGame();
+                    isInitialLoad = false;
+                } else {
+                    isInitialLoad = false;
                 }
                 
                 updateUIForCurrentState();
