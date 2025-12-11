@@ -780,7 +780,6 @@
 
         let myTeam = localStorage.getItem('inquiz_team') || '';
         let timerInterval = null;
-        let localUpdate = false;
 
         // ===== ИНИЦИАЛИЗАЦИЯ =====
         function init() {
@@ -797,20 +796,18 @@
 
             // Слушаем Firebase
             gameRef.on('value', snap => {
-                if (localUpdate) return;
                 const data = snap.val();
                 if (data) {
-                    state = { ...state, ...data };
+                    const oldPhase = state.phase;
+                    const oldCurrent = state.current;
+                    state = data;
                     render();
                 }
             });
         }
 
         function save() {
-            localUpdate = true;
-            gameRef.set(state).then(() => {
-                setTimeout(() => { localUpdate = false; }, 100);
-            });
+            gameRef.set(state);
         }
 
         // ===== РЕНДЕР =====
