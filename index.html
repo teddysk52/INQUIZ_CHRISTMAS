@@ -495,6 +495,38 @@
             transform: translateY(-2px);
         }
 
+        /* Лобби */
+        .lobby-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(180deg, #0a1628 0%, #1a2a4a 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 4000;
+        }
+
+        .lobby-content {
+            text-align: center;
+            max-width: 800px;
+            padding: 50px;
+        }
+
+        .teams-list-item {
+            background: rgba(255,255,255,0.1);
+            border: 2px solid rgba(255,255,255,0.3);
+            border-radius: 15px;
+            padding: 15px 25px;
+            margin: 10px auto;
+            font-size: 1.3rem;
+            font-weight: 700;
+            max-width: 400px;
+            color: #ffd700;
+        }
+
         /* Адаптивность */
         @media (max-width: 1200px) {
             .container {
@@ -583,6 +615,45 @@
     </style>
 </head>
 <body>
+    <!-- Лобби -->
+    <div class="lobby-screen" id="lobbyScreen">
+        <div class="lobby-content">
+            <h1 style="font-size: 4rem; margin-bottom: 30px; color: #ffd700;">🎄 INQUIZ 🎄</h1>
+            <h2 style="margin-bottom: 40px;">Vánoční Speciál ❄️</h2>
+            
+            <div style="margin-bottom: 40px;">
+                <input type="text" id="teamNameInput" placeholder="Название вашей команды..." 
+                    style="width: 100%; max-width: 400px; padding: 20px; font-size: 1.3rem; text-align: center; 
+                    background: rgba(255,255,255,0.1); border: 3px solid #ffd700; border-radius: 15px; color: #fff; font-weight: 600;">
+                <button onclick="addTeam()" style="margin-top: 20px; padding: 20px 50px; font-size: 1.3rem; 
+                    background: linear-gradient(145deg, #22c55e, #16a34a); border: none; border-radius: 50px; 
+                    color: #fff; font-weight: 700; cursor: pointer;">
+                    Добавить команду
+                </button>
+            </div>
+            
+            <div id="teamsList" style="margin-bottom: 40px; min-height: 100px;">
+                <h3 style="margin-bottom: 20px; color: rgba(255,255,255,0.7);">Команды в лобби:</h3>
+                <div id="teamsListContent"></div>
+            </div>
+            
+            <div style="margin-top: 40px;">
+                <input type="password" id="startPassword" placeholder="Пароль для старта (6952)" 
+                    style="width: 100%; max-width: 300px; padding: 15px; font-size: 1.2rem; text-align: center; 
+                    background: rgba(255,255,255,0.1); border: 2px solid rgba(255,255,255,0.3); border-radius: 15px; 
+                    color: #fff; font-weight: 600; margin-bottom: 20px;">
+                <button onclick="startGame()" style="padding: 20px 60px; font-size: 1.5rem; 
+                    background: linear-gradient(145deg, #ef4444, #dc2626); border: 3px solid #ffd700; 
+                    border-radius: 50px; color: #fff; font-weight: 900; cursor: pointer; 
+                    box-shadow: 0 10px 30px rgba(239,68,68,0.4);">
+                    🚀 НАЧАТЬ ИГРУ
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Игра -->
+    <div class="game-screen" id="gameScreen" style="display: none;">
     <!-- Гирлянда -->
     <div class="garland">
         <div class="light"></div><div class="light"></div><div class="light"></div><div class="light"></div><div class="light"></div>
@@ -604,15 +675,14 @@
     <!-- Админ кнопка -->
     <button class="admin-btn" onclick="showAdminControls()">⚙️</button>
 
-    <div class="container">
+        <div class="container">
         <!-- Табло команд -->
         <div class="scoreboard" id="scoreboard"></div>
 
         <!-- Игровое поле -->
         <div class="game-board" id="gameBoard"></div>
     </div>
-
-    <!-- Заставка раунда -->
+    </div>    <!-- Заставка раунда -->
     <div class="round-intro" id="roundIntro">
         <div class="round-title" id="roundTitle">РАУНД 1</div>
         <div class="themes-list" id="themesList"></div>
@@ -671,28 +741,21 @@
 
         // Состояние игры
         let gameState = {
-            teams: [
-                { name: "Tým 1", score: 0 },
-                { name: "Tým 2", score: 0 },
-                { name: "Tým 3", score: 0 },
-                { name: "Tým 4", score: 0 },
-                { name: "Tým 5", score: 0 }
-            ],
+            gameStarted: false,
+            teams: [],
             currentRound: 1,
             usedQuestions: [],
             currentQuestion: null,
             answeringTeam: null,
             timeLeft: 20,
             attemptedTeams: [],
-            buzzTimestamp: null,
-            buzzOrder: []
+            timerActive: false
         };
 
         let timerInterval = null;
         let isUpdatingFromFirebase = false;
         let myTeamIndex = null;
-        let hasAttemptedAnswer = false;
-        let isInitialLoad = true;
+        let myTeamName = '';
 
         // Вопросы - Раунд 1
         const round1 = {
@@ -787,6 +850,70 @@
                 flake.style.fontSize = (Math.random() * 12 + 8) + 'px';
                 container.appendChild(flake);
             }
+        }
+
+        // Добавить команду
+        function addTeam() {
+            const input = document.getElementById('teamNameInput');
+            const teamName = input.value.trim();
+            
+            if (!teamName) {
+                alert('Введите название команды!');
+                return;
+            }
+            
+            // Проверяем что команда еще не добавлена
+            if (gameState.teams.some(t => t.name === teamName)) {
+                alert('Команда с таким названием уже существует!');
+                return;
+            }
+            
+            gameState.teams.push({ name: teamName, score: 0 });
+            myTeamName = teamName;
+            myTeamIndex = gameState.teams.length - 1;
+            localStorage.setItem('myTeamName', myTeamName);
+            
+            input.value = '';
+            saveGame();
+            renderTeamsList();
+        }
+
+        // Отрисовка списка команд в лобби
+        function renderTeamsList() {
+            const container = document.getElementById('teamsListContent');
+            if (gameState.teams.length === 0) {
+                container.innerHTML = '<div style="color: rgba(255,255,255,0.5);">Команд пока нет...</div>';
+                return;
+            }
+            
+            container.innerHTML = gameState.teams.map((team, idx) => 
+                `<div class="teams-list-item">${idx + 1}. ${team.name}</div>`
+            ).join('');
+        }
+
+        // Начать игру
+        function startGame() {
+            const password = document.getElementById('startPassword').value;
+            
+            if (password !== '6952') {
+                alert('Неправильный пароль!');
+                return;
+            }
+            
+            if (gameState.teams.length === 0) {
+                alert('Добавьте хотя бы одну команду!');
+                return;
+            }
+            
+            gameState.gameStarted = true;
+            saveGame();
+            
+            document.getElementById('lobbyScreen').style.display = 'none';
+            document.getElementById('gameScreen').style.display = 'block';
+            
+            renderScoreboard();
+            renderGameBoard();
+            showRoundIntro(1);
         }
 
         // Нормализация ответа
@@ -949,10 +1076,14 @@
         // Таймер
         function startTimer() {
             stopTimer();
+            gameState.timeLeft = 20;
+            gameState.timerActive = true;
+            saveGame();
             updateTimerDisplay();
             
             timerInterval = setInterval(() => {
                 gameState.timeLeft--;
+                saveGame(); // Синхронизируем таймер
                 updateTimerDisplay();
                 
                 if (gameState.timeLeft <= 0) {
@@ -964,6 +1095,8 @@
 
         function updateTimerDisplay() {
             const timer = document.getElementById('timer');
+            if (!timer) return;
+            
             timer.textContent = gameState.timeLeft;
             
             timer.classList.remove('warning', 'danger');
@@ -979,21 +1112,18 @@
                 clearInterval(timerInterval);
                 timerInterval = null;
             }
+            gameState.timerActive = false;
+            saveGame();
         }
 
         // Нажатие кнопки "Ответить"
         function buzzIn() {
             if (!gameState.currentQuestion || gameState.answeringTeam !== null) return;
             
-            // Если команда не выбрана - спрашиваем
-            if (myTeamIndex === null) {
-                const teamNum = prompt('Выберите вашу команду (0-4):');
-                if (teamNum !== null && teamNum >= '0' && teamNum <= '4') {
-                    myTeamIndex = parseInt(teamNum);
-                    localStorage.setItem('myTeamIndex', myTeamIndex);
-                } else {
-                    return;
-                }
+            // Если команда не выбрана
+            if (myTeamIndex === null || myTeamIndex === -1) {
+                alert('Вы не добавили свою команду в лобби!');
+                return;
             }
             
             if (gameState.attemptedTeams && gameState.attemptedTeams.includes(myTeamIndex)) {
@@ -1006,14 +1136,7 @@
             if (!gameState.attemptedTeams) gameState.attemptedTeams = [];
             gameState.attemptedTeams.push(myTeamIndex);
             
-            // Обновляем UI
-            document.getElementById('buzzButton').classList.add('disabled');
-            document.getElementById('answeringTeamName').textContent = gameState.teams[gameState.answeringTeam].name;
-            document.getElementById('answerInputContainer').classList.add('active');
-            document.getElementById('answerInput').focus();
-            
-            renderScoreboard();
-            saveGame();
+            saveGame(); // Сохраняем чтобы все увидели
         }
 
         // Отправка ответа
@@ -1100,7 +1223,7 @@
 
         // Админ контроль
         function showAdminControls() {
-            const action = prompt('Команды:\n0-4 - Выбрать свою команду (0=Tým 1, 1=Tým 2, и т.д.)\n1r - Раунд 1\n2r - Раунд 2\nreset - Сброс игры\nrename - Переименовать команду\nВведите команду:');
+            const action = prompt('Команды:\n1r - Раунд 1\n2r - Раунд 2\nreset - Сброс игры в лобби\nВведите команду:');
             
             if (action === '1r') {
                 gameState.currentRound = 1;
@@ -1113,44 +1236,23 @@
                 setTimeout(() => renderGameBoard(), 4000);
                 saveGame();
             } else if (action === 'reset') {
-                if (confirm('Сбросить игру?')) {
+                if (confirm('Сбросить игру в лобби?')) {
                     gameState = {
-                        teams: [
-                            { name: "Tým 1", score: 0 },
-                            { name: "Tým 2", score: 0 },
-                            { name: "Tým 3", score: 0 },
-                            { name: "Tým 4", score: 0 },
-                            { name: "Tým 5", score: 0 }
-                        ],
+                        gameStarted: false,
+                        teams: [],
                         currentRound: 1,
                         usedQuestions: [],
                         currentQuestion: null,
                         answeringTeam: null,
                         timeLeft: 20,
                         attemptedTeams: [],
-                        buzzTimestamp: null,
-                        buzzOrder: []
+                        timerActive: false
                     };
-                    database.ref('sigame/buzzOrder').remove();
-                    renderScoreboard();
-                    renderGameBoard();
+                    myTeamIndex = null;
+                    myTeamName = '';
+                    localStorage.removeItem('myTeamName');
                     saveGame();
                 }
-            } else if (action === 'rename') {
-                const teamNum = prompt('Какую команду переименовать? (0-4)');
-                const idx = parseInt(teamNum);
-                if (idx >= 0 && idx < 5) {
-                    const newName = prompt('Новое название:');
-                    if (newName) {
-                        gameState.teams[idx].name = newName;
-                        renderScoreboard();
-                        saveGame();
-                    }
-                }
-            } else if (action >= '0' && action <= '4') {
-                myTeamIndex = parseInt(action);
-                alert(`Вы играете за ${gameState.teams[myTeamIndex].name}!`);
-                localStorage.setItem('myTeamIndex', myTeamIndex);
             }
         }
 
@@ -1167,39 +1269,56 @@
             if (data && !isUpdatingFromFirebase) {
                 isUpdatingFromFirebase = true;
                 
-                // Мержим данные, не перезаписываем полностью
-                gameState.teams = data.teams || gameState.teams;
-                gameState.currentRound = data.currentRound || 1;
-                gameState.usedQuestions = data.usedQuestions || [];
-                gameState.currentQuestion = data.currentQuestion || null;
-                gameState.answeringTeam = data.answeringTeam !== undefined ? data.answeringTeam : null;
-                gameState.timeLeft = data.timeLeft || 20;
-                gameState.attemptedTeams = data.attemptedTeams || [];
+                // Полностью берем состояние из Firebase
+                gameState = {
+                    gameStarted: data.gameStarted || false,
+                    teams: data.teams || [],
+                    currentRound: data.currentRound || 1,
+                    usedQuestions: data.usedQuestions || [],
+                    currentQuestion: data.currentQuestion || null,
+                    answeringTeam: data.answeringTeam !== undefined ? data.answeringTeam : null,
+                    timeLeft: data.timeLeft || 20,
+                    attemptedTeams: data.attemptedTeams || [],
+                    timerActive: data.timerActive || false
+                };
                 
-                renderScoreboard();
-                renderGameBoard();
+                // Восстанавливаем мою команду
+                if (myTeamName) {
+                    myTeamIndex = gameState.teams.findIndex(t => t.name === myTeamName);
+                }
                 
-                // Синхронизация модального окна (но не при первой загрузке)
-                if (!isInitialLoad) {
-                    if (gameState.currentQuestion && !document.getElementById('questionModal').classList.contains('active')) {
-                        showQuestionModal();
-                    } else if (!gameState.currentQuestion && document.getElementById('questionModal').classList.contains('active')) {
+                // Показываем нужный экран
+                if (gameState.gameStarted) {
+                    document.getElementById('lobbyScreen').style.display = 'none';
+                    document.getElementById('gameScreen').style.display = 'block';
+                    renderScoreboard();
+                    renderGameBoard();
+                    
+                    // Синхронизация модального окна
+                    if (gameState.currentQuestion) {
+                        if (!document.getElementById('questionModal').classList.contains('active')) {
+                            showQuestionModal();
+                        }
+                        updateTimerDisplay();
+                        
+                        // Запускаем таймер только если он активен и еще не запущен
+                        if (gameState.timerActive && !timerInterval && gameState.timeLeft > 0) {
+                            timerInterval = setInterval(() => {
+                                updateTimerDisplay();
+                            }, 1000);
+                        }
+                    } else {
                         document.getElementById('questionModal').classList.remove('active');
+                        stopTimer();
                     }
-                }
-                
-                // После первой загрузки очищаем старый вопрос если он есть
-                if (isInitialLoad && gameState.currentQuestion) {
-                    gameState.currentQuestion = null;
-                    gameState.answeringTeam = null;
-                    gameState.attemptedTeams = [];
-                    saveGame();
-                    isInitialLoad = false;
+                    
+                    updateUIForCurrentState();
                 } else {
-                    isInitialLoad = false;
+                    document.getElementById('lobbyScreen').style.display = 'flex';
+                    document.getElementById('gameScreen').style.display = 'none';
+                    renderTeamsList();
                 }
                 
-                updateUIForCurrentState();
                 setTimeout(() => {
                     isUpdatingFromFirebase = false;
                 }, 100);
@@ -1232,45 +1351,32 @@
             const buzzBtn = document.getElementById('buzzButton');
             const inputContainer = document.getElementById('answerInputContainer');
             
-            if (!gameState.currentQuestion) return;
+            if (!gameState.currentQuestion || !buzzBtn) return;
             
             // Если кто-то отвечает
             if (gameState.answeringTeam !== null) {
                 buzzBtn.classList.add('disabled');
+                document.getElementById('answeringTeamName').textContent = gameState.teams[gameState.answeringTeam].name;
                 
                 // Если отвечает моя команда - показываем поле ввода
                 if (gameState.answeringTeam === myTeamIndex) {
                     inputContainer.classList.add('active');
-                    document.getElementById('answeringTeamName').textContent = gameState.teams[gameState.answeringTeam].name;
-                    document.getElementById('answerInput').focus();
+                    setTimeout(() => {
+                        document.getElementById('answerInput').focus();
+                    }, 100);
                 } else {
                     inputContainer.classList.remove('active');
-                    document.getElementById('answeringTeamName').textContent = gameState.teams[gameState.answeringTeam].name;
                 }
             } else {
                 // Никто не отвечает - кнопка доступна
-                if (myTeamIndex !== null && !gameState.attemptedTeams.includes(myTeamIndex)) {
+                if (myTeamIndex !== null && myTeamIndex !== -1 && 
+                    (!gameState.attemptedTeams || !gameState.attemptedTeams.includes(myTeamIndex))) {
                     buzzBtn.classList.remove('disabled');
                 } else {
                     buzzBtn.classList.add('disabled');
                 }
                 inputContainer.classList.remove('active');
             }
-        }
-
-        function updateUIForAnswering() {
-            const buzzBtn = document.getElementById('buzzButton');
-            const inputContainer = document.getElementById('answerInputContainer');
-            
-            buzzBtn.classList.add('disabled');
-            document.getElementById('answeringTeamName').textContent = gameState.teams[gameState.answeringTeam].name;
-            
-            if (gameState.answeringTeam === myTeamIndex) {
-                inputContainer.classList.add('active');
-                document.getElementById('answerInput').focus();
-            }
-            
-            renderScoreboard();
         }
 
         // Enter для отправки ответа
@@ -1283,23 +1389,13 @@
         // Инициализация
         createSnowflakes();
         
-        // Восстанавливаем выбор команды из localStorage
-        const savedTeam = localStorage.getItem('myTeamIndex');
-        if (savedTeam !== null) {
-            myTeamIndex = parseInt(savedTeam);
+        // Восстанавливаем команду из localStorage
+        const savedTeamName = localStorage.getItem('myTeamName');
+        if (savedTeamName) {
+            myTeamName = savedTeamName;
         }
         
-        renderScoreboard();
-        renderGameBoard(); // Сначала рендерим поле
-        
-        // Потом показываем заставку раунда
-        setTimeout(() => {
-            showRoundIntro(1);
-        }, 100);
-        
-        setTimeout(() => {
-            renderGameBoard(); // Еще раз после заставки
-        }, 4500);
+        renderTeamsList();
     </script>
 </body>
 </html>
