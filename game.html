@@ -1,0 +1,1167 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>INQUIZ 🎄</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
+    
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(180deg, #0a1628 0%, #1a2a4a 100%);
+            min-height: 100vh;
+            color: #fff;
+            overflow-x: hidden;
+        }
+
+        /* Снежинки */
+        .snowflakes {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1000;
+            overflow: hidden;
+        }
+
+        .snowflake {
+            position: absolute;
+            top: -20px;
+            color: #fff;
+            font-size: 1rem;
+            animation: fall linear infinite;
+            opacity: 0.8;
+        }
+
+        @keyframes fall {
+            0% { transform: translateY(-20px) rotate(0deg); }
+            100% { transform: translateY(100vh) rotate(360deg); }
+        }
+
+        /* Гирлянда */
+        .garland {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 25px;
+            display: flex;
+            justify-content: space-around;
+            z-index: 999;
+            background: linear-gradient(180deg, rgba(0,50,0,0.8) 0%, transparent 100%);
+        }
+
+        .light {
+            width: 12px;
+            height: 18px;
+            border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+            animation: glow 1.5s infinite;
+        }
+
+        @keyframes glow {
+            0%, 100% { opacity: 1; filter: brightness(1.5) drop-shadow(0 0 8px currentColor); }
+            50% { opacity: 0.6; }
+        }
+
+        .light:nth-child(5n+1) { background: #ff3333; color: #ff3333; animation-delay: 0s; }
+        .light:nth-child(5n+2) { background: #33ff33; color: #33ff33; animation-delay: 0.3s; }
+        .light:nth-child(5n+3) { background: #ffdd33; color: #ffdd33; animation-delay: 0.6s; }
+        .light:nth-child(5n+4) { background: #3366ff; color: #3366ff; animation-delay: 0.9s; }
+        .light:nth-child(5n+5) { background: #ff33ff; color: #ff33ff; animation-delay: 1.2s; }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 50px 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Статус подключения */
+        .connection-status {
+            position: fixed;
+            top: 40px;
+            left: 20px;
+            padding: 8px 16px;
+            background: rgba(255,255,255,0.1);
+            border: 2px solid rgba(255,255,255,0.3);
+            border-radius: 50px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            z-index: 1001;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .connection-status.online {
+            border-color: #22c55e;
+            background: rgba(34,197,94,0.1);
+        }
+
+        /* Табло команд */
+        .scoreboard {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .team-score {
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255,255,255,0.2);
+            border-radius: 15px;
+            padding: 15px 25px;
+            text-align: center;
+            min-width: 140px;
+        }
+
+        .team-score.answering {
+            border-color: #ffd700;
+            box-shadow: 0 0 30px rgba(255,215,0,0.6);
+            animation: pulse-team 0.8s infinite;
+        }
+
+        @keyframes pulse-team {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .team-name {
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: rgba(255,255,255,0.8);
+        }
+
+        .team-points {
+            font-size: 1.8rem;
+            font-weight: 900;
+            color: #ffd700;
+        }
+
+        /* Заголовок раунда */
+        .round-intro {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            z-index: 3000;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+
+        .round-intro.active {
+            display: flex;
+            animation: fadeIn 0.5s;
+        }
+
+        .round-title {
+            font-size: 4rem;
+            font-weight: 900;
+            color: #ffd700;
+            margin-bottom: 50px;
+            text-shadow: 0 0 40px rgba(255,215,0,0.5);
+        }
+
+        .themes-list {
+            max-width: 800px;
+            width: 100%;
+        }
+
+        .theme-item {
+            background: rgba(255,255,255,0.1);
+            border: 2px solid rgba(255,255,255,0.2);
+            border-radius: 15px;
+            padding: 20px 30px;
+            margin-bottom: 15px;
+            font-size: 1.5rem;
+            font-weight: 700;
+            text-align: center;
+            opacity: 0;
+            transform: translateY(20px);
+            animation: slideIn 0.5s forwards;
+        }
+
+        @keyframes slideIn {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .theme-item:nth-child(1) { animation-delay: 0.2s; }
+        .theme-item:nth-child(2) { animation-delay: 0.4s; }
+        .theme-item:nth-child(3) { animation-delay: 0.6s; }
+        .theme-item:nth-child(4) { animation-delay: 0.8s; }
+        .theme-item:nth-child(5) { animation-delay: 1s; }
+
+        /* Игровое поле */
+        .game-board {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 10px;
+            margin-bottom: 30px;
+        }
+
+        .category-header {
+            background: linear-gradient(145deg, #c41e3a, #8b0000);
+            padding: 20px 10px;
+            text-align: center;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            box-shadow: 0 4px 15px rgba(196,30,58,0.4);
+            min-height: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .question-cell {
+            background: linear-gradient(145deg, #1e5128, #2d7a3a);
+            border: 2px solid rgba(255,255,255,0.1);
+            padding: 30px;
+            text-align: center;
+            border-radius: 12px;
+            font-weight: 900;
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: #ffd700;
+            box-shadow: 0 4px 15px rgba(30,81,40,0.4);
+        }
+
+        .question-cell:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 25px rgba(45,122,58,0.6);
+            border-color: #ffd700;
+        }
+
+        .question-cell.used {
+            background: rgba(50,50,50,0.5);
+            color: rgba(255,255,255,0.2);
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+
+        .question-cell.used:hover {
+            transform: none;
+        }
+
+        /* Модальное окно вопроса */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: linear-gradient(145deg, #1a2a4a, #0a1628);
+            border: 3px solid rgba(255,215,0,0.3);
+            border-radius: 25px;
+            padding: 50px;
+            max-width: 1000px;
+            width: 100%;
+            text-align: center;
+        }
+
+        .modal-category {
+            font-size: 1rem;
+            color: rgba(255,255,255,0.6);
+            margin-bottom: 10px;
+            text-transform: uppercase;
+        }
+
+        .modal-points {
+            font-size: 4rem;
+            font-weight: 900;
+            color: #ffd700;
+            margin-bottom: 30px;
+        }
+
+        .modal-question {
+            font-size: 2rem;
+            line-height: 1.6;
+            margin-bottom: 40px;
+        }
+
+        .modal-image {
+            max-width: 100%;
+            max-height: 300px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+        }
+
+        /* Кнопка "Ответить" */
+        .buzz-button {
+            width: 200px;
+            height: 200px;
+            background: linear-gradient(145deg, #ef4444, #dc2626);
+            border: 5px solid #ffd700;
+            border-radius: 50%;
+            font-size: 1.5rem;
+            font-weight: 900;
+            color: #fff;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin: 30px auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 10px 30px rgba(239,68,68,0.4);
+        }
+
+        .buzz-button:hover:not(.disabled) {
+            transform: scale(1.1);
+            box-shadow: 0 15px 40px rgba(239,68,68,0.6);
+        }
+
+        .buzz-button.disabled {
+            background: rgba(100,100,100,0.5);
+            border-color: rgba(255,255,255,0.2);
+            cursor: not-allowed;
+        }
+
+        /* Поле ввода ответа */
+        .answer-input-container {
+            display: none;
+            margin: 30px 0;
+        }
+
+        .answer-input-container.active {
+            display: block;
+        }
+
+        .answer-input {
+            width: 100%;
+            max-width: 500px;
+            padding: 20px;
+            font-size: 1.5rem;
+            text-align: center;
+            background: rgba(255,255,255,0.1);
+            border: 3px solid #ffd700;
+            border-radius: 15px;
+            color: #fff;
+            font-weight: 600;
+        }
+
+        .answer-input:focus {
+            outline: none;
+            box-shadow: 0 0 30px rgba(255,215,0,0.4);
+        }
+
+        .submit-answer-btn {
+            margin-top: 20px;
+            padding: 15px 50px;
+            background: linear-gradient(145deg, #22c55e, #16a34a);
+            border: none;
+            border-radius: 50px;
+            color: #fff;
+            font-size: 1.2rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .submit-answer-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(34,197,94,0.4);
+        }
+
+        /* Таймер */
+        .timer {
+            font-size: 3rem;
+            font-weight: 900;
+            color: #4ade80;
+            margin-bottom: 20px;
+        }
+
+        .timer.warning {
+            color: #fbbf24;
+        }
+
+        .timer.danger {
+            color: #ef4444;
+            animation: pulse 0.5s infinite;
+        }
+
+        /* Правильный/неправильный ответ */
+        .answer-result {
+            display: none;
+            font-size: 2rem;
+            font-weight: 900;
+            margin: 20px 0;
+            padding: 20px;
+            border-radius: 15px;
+        }
+
+        .answer-result.correct {
+            display: block;
+            background: rgba(34,197,94,0.2);
+            border: 3px solid #22c55e;
+            color: #22c55e;
+        }
+
+        .answer-result.wrong {
+            display: block;
+            background: rgba(239,68,68,0.2);
+            border: 3px solid #ef4444;
+            color: #ef4444;
+        }
+
+        .correct-answer-display {
+            margin-top: 20px;
+            font-size: 1.3rem;
+            color: #4ade80;
+            padding: 15px;
+            background: rgba(74,222,128,0.1);
+            border-radius: 10px;
+        }
+
+        /* Кнопки управления */
+        .admin-btn {
+            position: fixed;
+            top: 40px;
+            right: 20px;
+            width: 50px;
+            height: 50px;
+            background: rgba(255,255,255,0.1);
+            border: 2px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            color: #fff;
+            font-size: 1.5rem;
+            cursor: pointer;
+            z-index: 1001;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .control-buttons {
+            margin-top: 30px;
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 15px 30px;
+            background: rgba(255,255,255,0.1);
+            border: 2px solid rgba(255,255,255,0.3);
+            border-radius: 50px;
+            color: #fff;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn:hover {
+            background: rgba(255,255,255,0.2);
+            transform: translateY(-2px);
+        }
+
+        /* Адаптивность */
+        @media (max-width: 900px) {
+            .game-board {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .modal-question {
+                font-size: 1.3rem;
+            }
+            
+            .buzz-button {
+                width: 150px;
+                height: 150px;
+                font-size: 1.2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Гирлянда -->
+    <div class="garland">
+        <div class="light"></div><div class="light"></div><div class="light"></div><div class="light"></div><div class="light"></div>
+        <div class="light"></div><div class="light"></div><div class="light"></div><div class="light"></div><div class="light"></div>
+        <div class="light"></div><div class="light"></div><div class="light"></div><div class="light"></div><div class="light"></div>
+        <div class="light"></div><div class="light"></div><div class="light"></div><div class="light"></div><div class="light"></div>
+        <div class="light"></div><div class="light"></div><div class="light"></div><div class="light"></div><div class="light"></div>
+    </div>
+
+    <!-- Снежинки -->
+    <div class="snowflakes" id="snowflakes"></div>
+
+    <!-- Статус -->
+    <div class="connection-status online">
+        <div style="width: 8px; height: 8px; border-radius: 50%; background: #22c55e;"></div>
+        <span>🌐 Online</span>
+    </div>
+
+    <!-- Админ кнопка -->
+    <button class="admin-btn" onclick="showAdminControls()">⚙️</button>
+
+    <div class="container">
+        <!-- Табло команд -->
+        <div class="scoreboard" id="scoreboard"></div>
+
+        <!-- Игровое поле -->
+        <div class="game-board" id="gameBoard"></div>
+    </div>
+
+    <!-- Заставка раунда -->
+    <div class="round-intro" id="roundIntro">
+        <div class="round-title" id="roundTitle">РАУНД 1</div>
+        <div class="themes-list" id="themesList"></div>
+    </div>
+
+    <!-- Модальное окно вопроса -->
+    <div class="modal" id="questionModal">
+        <div class="modal-content">
+            <div class="modal-category" id="modalCategory"></div>
+            <div class="modal-points" id="modalPoints"></div>
+            <div class="timer" id="timer">20</div>
+            <div class="modal-question" id="modalQuestion"></div>
+            <img class="modal-image" id="modalImage" style="display: none;" />
+            
+            <!-- Кнопка ответить -->
+            <button class="buzz-button" id="buzzButton" onclick="buzzIn()">
+                🔔 ОТВЕТИТЬ
+            </button>
+
+            <!-- Поле ввода ответа -->
+            <div class="answer-input-container" id="answerInputContainer">
+                <div style="margin-bottom: 15px; font-size: 1.2rem;">
+                    Отвечает: <span id="answeringTeamName" style="color: #ffd700; font-weight: 900;"></span>
+                </div>
+                <input type="text" class="answer-input" id="answerInput" placeholder="Введите ответ..." />
+                <button class="submit-answer-btn" onclick="submitAnswer()">Отправить</button>
+            </div>
+
+            <!-- Результат ответа -->
+            <div class="answer-result" id="answerResult"></div>
+            <div class="correct-answer-display" id="correctAnswerDisplay" style="display: none;"></div>
+
+            <!-- Кнопки управления -->
+            <div class="control-buttons">
+                <button class="btn" onclick="closeQuestion()" style="display: none;" id="closeBtn">Закрыть</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Firebase конфигурация
+        const firebaseConfig = {
+            apiKey: "AIzaSyDwo2GKOXEDDs31kRfFCQLy_TcXRC2DF0",
+            authDomain: "inquiz-a82e2.firebaseapp.com",
+            databaseURL: "https://inquiz-a82e2-default-rtdb.europe-west1.firebasedatabase.app",
+            projectId: "inquiz-a82e2",
+            storageBucket: "inquiz-a82e2.firebasestorage.app",
+            messagingSenderId: "943129879818",
+            appId: "1:943129879818:web:366e32fe072182cd0d86f3",
+            measurementId: "G-VY34PYJ9NJ"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+        const gameRef = database.ref('sigame');
+
+        // Состояние игры
+        let gameState = {
+            teams: [
+                { name: "Tým 1", score: 0 },
+                { name: "Tým 2", score: 0 },
+                { name: "Tým 3", score: 0 },
+                { name: "Tým 4", score: 0 },
+                { name: "Tým 5", score: 0 }
+            ],
+            currentRound: 1,
+            usedQuestions: [],
+            currentQuestion: null,
+            answeringTeam: null,
+            timeLeft: 20,
+            attemptedTeams: [],
+            buzzTimestamp: null,
+            buzzOrder: []
+        };
+
+        let timerInterval = null;
+        let isUpdatingFromFirebase = false;
+        let myTeamIndex = null;
+        let hasAttemptedAnswer = false;
+
+        // Вопросы - Раунд 1
+        const round1 = {
+            "Minecraft": [
+                { points: 200, question: "Jak se jmenuje hlavní boss v Minecraftu?", answer: ["Ender Dragon", "enderdragon", "дракон"], image: "" },
+                { points: 400, question: "Kolik bloků obsidiánu potřebuješ na portál do Netheru?", answer: ["10", "десять", "deset"] },
+                { points: 600, question: "Jak se jmenuje dimenze, kde žijí Endermani?", answer: ["The End", "end", "энд", "конец"] },
+                { points: 800, question: "Jaký předmět potřebuješ k ochočení vlka?", answer: ["Kost", "bone", "кость"] },
+                { points: 1000, question: "V jakém roce vyšla plná verze Minecraft 1.0?", answer: ["2011"] }
+            ],
+            "Programování": [
+                { points: 200, question: "Jak se nazývá chyba v kódu?", answer: ["Bug", "баг", "chyba"] },
+                { points: 400, question: "Který programovací jazyk je pojmenován po kávě?", answer: ["Java", "джава"] },
+                { points: 600, question: "Co znamená HTML?", answer: ["HyperText Markup Language", "hypertext markup language"] },
+                { points: 800, question: "Jaký operátor se používá pro porovnání?", answer: ["==", "dvojité rovná se", "double equals"] },
+                { points: 1000, question: "Jak se nazývá datová struktura LIFO?", answer: ["Stack", "zásobník", "стек"] }
+            ],
+            "IT & Tech": [
+                { points: 200, question: "Co znamená zkratka USB?", answer: ["Universal Serial Bus"] },
+                { points: 400, question: "Která společnost vytvořila iPhone?", answer: ["Apple", "эпл"] },
+                { points: 600, question: "Co je RAM?", answer: ["Operační paměť", "Random Access Memory", "память", "оперативная память"] },
+                { points: 800, question: "V jakém roce byl založen Google?", answer: ["1998"] },
+                { points: 1000, question: "Jak se nazývá protokol pro bezpečný přenos dat?", answer: ["HTTPS", "https"] }
+            ],
+            "Memes & Internet": [
+                { points: 200, question: "Jaké slovo popisuje vtipný obrázek šířící se po internetu?", answer: ["Meme", "мем"] },
+                { points: 400, question: "Jak se jmenuje slavný meme s kočkou u stolu?", answer: ["Woman Yelling at Cat", "кот за столом"] },
+                { points: 600, question: "Co znamená 'rickrolling'?", answer: ["Rick Astley", "Never Gonna Give You Up", "рикролл"] },
+                { points: 800, question: "Jak se jmenuje pes ze slavného meme 'Doge'?", answer: ["Kabosu", "Shiba Inu", "шиба"] },
+                { points: 1000, question: "Co znamená zkratka 'LOL'?", answer: ["Laughing Out Loud", "лол"] }
+            ],
+            "Vánoce 🎄": [
+                { points: 200, question: "Jak se jmenuje sob s červeným nosem?", answer: ["Rudolf", "рудольф"] },
+                { points: 400, question: "Ve které zemi vznikla tradice vánočního stromku?", answer: ["Německo", "Germany", "германия"] },
+                { points: 600, question: "Jak se jmenuje vánoční nápoj z mléka a vajec?", answer: ["Eggnog", "эгног"] },
+                { points: 800, question: "Kolik sobů táhne sáně Santa Clause (bez Rudolfa)?", answer: ["8", "osm", "восемь"] },
+                { points: 1000, question: "Jak se jmenuje vánoční kalendář s okénky?", answer: ["Adventní kalendář", "advent calendar"] }
+            ]
+        };
+
+        // Вопросы - Раунд 2
+        const round2 = {
+            "Games 🎮": [
+                { points: 200, question: "Jaká hra má mapu 'Dust 2'?", answer: ["Counter-Strike", "CS", "контр страйк"] },
+                { points: 400, question: "V jaké hře sbíráš 'V-Bucks'?", answer: ["Fortnite", "форнайт"] },
+                { points: 600, question: "Hlavní postava v 'The Witcher'?", answer: ["Geralt", "Geralt z Rivie", "ведьмак"] },
+                { points: 800, question: "Která hra má easter egg 'Do a barrel roll'?", answer: ["Star Fox", "старфокс"] },
+                { points: 1000, question: "Herní engine od Epic Games?", answer: ["Unreal Engine", "анриал"] }
+            ],
+            "School Life 📚": [
+                { points: 200, question: "Kolik minut má vyučovací hodina?", answer: ["45", "čtyřicet pět"] },
+                { points: 400, question: "Nejhorší známka v českém školství?", answer: ["5", "nedostatečná", "пятерка"] },
+                { points: 600, question: "Který předmět se nenávidí nejvíce?", answer: ["Matematika", "математика", "matika"] },
+                { points: 800, question: "Jaký předmět má zkratku 'M'?", answer: ["Matematika", "математика"] },
+                { points: 1000, question: "Kolik let trvá základní vzdělání v ČR?", answer: ["9", "devět", "девять"] }
+            ],
+            "WTF Fakty 🤯": [
+                { points: 200, question: "Které zvíře nikdy nespí?", answer: ["Žába", "frog", "лягушка"] },
+                { points: 400, question: "Kolik procent oceánu bylo prozkoumáno?", answer: ["5", "пять", "pět procent"] },
+                { points: 600, question: "Které zvíře má modrou krev?", answer: ["Chobotnice", "octopus", "осьминог"] },
+                { points: 800, question: "Kolik let může přežít tardigrade bez vody?", answer: ["10", "deset", "десять"] },
+                { points: 1000, question: "Která planeta má den delší než rok?", answer: ["Venuše", "Venus", "венера"] }
+            ],
+            "Random 🎲": [
+                { points: 200, question: "Kolik minut má jedna hodina?", answer: ["60", "šedesát"] },
+                { points: 400, question: "Nejpopulárnější video hosting?", answer: ["YouTube", "ютуб"] },
+                { points: 600, question: "Měna Japonska?", answer: ["Jen", "Yen", "иена"] },
+                { points: 800, question: "Kolik kláves má standardní klávesnice?", answer: ["104", "sto čtyři"] },
+                { points: 1000, question: "Ve které zemi byla vynalezena pizza?", answer: ["Itálie", "Italy", "италия"] }
+            ],
+            "Adam Hojer 👑": [
+                { points: 200, question: "Kolik je Adamovi let?", answer: ["20", "dvacet", "двадцать"] },
+                { points: 400, question: "V jakém měsíci má Adam narozeniny?", answer: ["Srpen", "August", "август"] },
+                { points: 600, question: "Na jaké fakultě studuje Adam?", answer: ["Ekonomická", "ekonomika", "экономика"] },
+                { points: 800, question: "Oblíbený dopravní prostředek Adama?", answer: ["Trolejbus", "троллейбус"] },
+                { points: 1000, question: "Kde bylo foto Adama z Instagramu?", answer: ["TechTower", "SitPort", "SeedUp", "техтауэр"] }
+            ]
+        };
+
+        // Инициализация снежинок
+        function createSnowflakes() {
+            const container = document.getElementById('snowflakes');
+            const flakes = ['❄', '❅', '❆', '✻', '✼', '❉'];
+            
+            for (let i = 0; i < 40; i++) {
+                const flake = document.createElement('div');
+                flake.className = 'snowflake';
+                flake.innerHTML = flakes[Math.floor(Math.random() * flakes.length)];
+                flake.style.left = Math.random() * 100 + '%';
+                flake.style.animationDuration = (Math.random() * 4 + 3) + 's';
+                flake.style.animationDelay = Math.random() * 5 + 's';
+                flake.style.fontSize = (Math.random() * 12 + 8) + 'px';
+                container.appendChild(flake);
+            }
+        }
+
+        // Нормализация ответа
+        function normalizeAnswer(answer) {
+            return answer.toLowerCase().trim()
+                .replace(/\s+/g, ' ')
+                .replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g, '');
+        }
+
+        // Проверка ответа
+        function checkAnswer(userAnswer, correctAnswers) {
+            const normalized = normalizeAnswer(userAnswer);
+            return correctAnswers.some(correct => 
+                normalizeAnswer(correct) === normalized ||
+                normalizeAnswer(correct).includes(normalized) ||
+                normalized.includes(normalizeAnswer(correct))
+            );
+        }
+
+        // Отрисовка табло
+        function renderScoreboard() {
+            const board = document.getElementById('scoreboard');
+            board.innerHTML = '';
+            
+            gameState.teams.forEach((team, index) => {
+                const card = document.createElement('div');
+                card.className = 'team-score';
+                if (gameState.answeringTeam === index) {
+                    card.classList.add('answering');
+                }
+                card.innerHTML = `
+                    <div class="team-name">${team.name}</div>
+                    <div class="team-points">${team.score}</div>
+                `;
+                board.appendChild(card);
+            });
+        }
+
+        // Показ заставки раунда
+        function showRoundIntro(roundNum) {
+            const intro = document.getElementById('roundIntro');
+            const title = document.getElementById('roundTitle');
+            const list = document.getElementById('themesList');
+            
+            const themes = roundNum === 1 ? Object.keys(round1) : Object.keys(round2);
+            
+            title.textContent = `РАУНД ${roundNum}`;
+            list.innerHTML = '';
+            
+            themes.forEach(theme => {
+                const item = document.createElement('div');
+                item.className = 'theme-item';
+                item.textContent = theme;
+                list.appendChild(item);
+            });
+            
+            intro.classList.add('active');
+            
+            setTimeout(() => {
+                intro.classList.remove('active');
+            }, 4000);
+        }
+
+        // Отрисовка игрового поля
+        function renderGameBoard() {
+            const board = document.getElementById('gameBoard');
+            board.innerHTML = '';
+            
+            const currentRound = gameState.currentRound === 1 ? round1 : round2;
+            const categories = Object.keys(currentRound);
+            
+            // Заголовки
+            categories.forEach(cat => {
+                const header = document.createElement('div');
+                header.className = 'category-header';
+                header.textContent = cat;
+                board.appendChild(header);
+            });
+            
+            // Вопросы
+            const points = [200, 400, 600, 800, 1000];
+            points.forEach(point => {
+                categories.forEach(cat => {
+                    const cell = document.createElement('div');
+                    const questionId = `r${gameState.currentRound}-${cat}-${point}`;
+                    cell.className = `question-cell ${gameState.usedQuestions.includes(questionId) ? 'used' : ''}`;
+                    cell.textContent = point;
+                    
+                    if (!gameState.usedQuestions.includes(questionId)) {
+                        cell.onclick = () => openQuestion(cat, point);
+                    }
+                    
+                    board.appendChild(cell);
+                });
+            });
+        }
+
+        // Открыть вопрос
+        function openQuestion(category, points) {
+            const currentRound = gameState.currentRound === 1 ? round1 : round2;
+            const question = currentRound[category].find(q => q.points === points);
+            
+            if (!question) return;
+            
+            gameState.currentQuestion = {
+                category,
+                points,
+                ...question
+            };
+            gameState.answeringTeam = null;
+            gameState.attemptedTeams = [];
+            gameState.timeLeft = 20;
+            
+            // Очищаем предыдущие попытки buzz
+            database.ref('sigame/buzzOrder').remove();
+            
+            document.getElementById('modalCategory').textContent = category;
+            document.getElementById('modalPoints').textContent = points;
+            document.getElementById('modalQuestion').textContent = question.question;
+            
+            const img = document.getElementById('modalImage');
+            if (question.image) {
+                img.src = question.image;
+                img.style.display = 'block';
+            } else {
+                img.style.display = 'none';
+            }
+            
+            document.getElementById('buzzButton').classList.remove('disabled');
+            document.getElementById('answerInputContainer').classList.remove('active');
+            document.getElementById('answerResult').className = 'answer-result';
+            document.getElementById('correctAnswerDisplay').style.display = 'none';
+            document.getElementById('closeBtn').style.display = 'none';
+            document.getElementById('answerInput').value = '';
+            
+            document.getElementById('questionModal').classList.add('active');
+            startTimer();
+            saveGame();
+        }
+
+        // Таймер
+        function startTimer() {
+            stopTimer();
+            updateTimerDisplay();
+            
+            timerInterval = setInterval(() => {
+                gameState.timeLeft--;
+                updateTimerDisplay();
+                
+                if (gameState.timeLeft <= 0) {
+                    stopTimer();
+                    showCorrectAnswer();
+                }
+            }, 1000);
+        }
+
+        function updateTimerDisplay() {
+            const timer = document.getElementById('timer');
+            timer.textContent = gameState.timeLeft;
+            
+            timer.classList.remove('warning', 'danger');
+            if (gameState.timeLeft <= 5) {
+                timer.classList.add('danger');
+            } else if (gameState.timeLeft <= 10) {
+                timer.classList.add('warning');
+            }
+        }
+
+        function stopTimer() {
+            if (timerInterval) {
+                clearInterval(timerInterval);
+                timerInterval = null;
+            }
+        }
+
+        // Нажатие кнопки "Ответить"
+        function buzzIn() {
+            if (!gameState.currentQuestion || gameState.answeringTeam !== null) return;
+            if (myTeamIndex === null) {
+                alert('Сначала выберите свою команду через админ панель!');
+                return;
+            }
+            if (gameState.attemptedTeams.includes(myTeamIndex)) {
+                return; // Уже пытались ответить
+            }
+            
+            // Отправляем попытку с timestamp в Firebase
+            const buzzAttempt = {
+                teamIndex: myTeamIndex,
+                timestamp: Date.now()
+            };
+            
+            database.ref('sigame/buzzOrder').push(buzzAttempt);
+        }
+
+        // Отправка ответа
+        function submitAnswer() {
+            if (gameState.answeringTeam !== myTeamIndex) return; // Может отвечать только своя команда
+            
+            const userAnswer = document.getElementById('answerInput').value.trim();
+            if (!userAnswer) return;
+            
+            const isCorrect = checkAnswer(userAnswer, gameState.currentQuestion.answer);
+            
+            const resultEl = document.getElementById('answerResult');
+            
+            if (isCorrect) {
+                resultEl.textContent = '✅ ПРАВИЛЬНО!';
+                resultEl.className = 'answer-result correct';
+                gameState.teams[gameState.answeringTeam].score += gameState.currentQuestion.points;
+                stopTimer();
+                saveGame();
+                
+                setTimeout(() => {
+                    markQuestionUsed();
+                    closeQuestion();
+                }, 2000);
+            } else {
+                resultEl.textContent = '❌ НЕПРАВИЛЬНО!';
+                resultEl.className = 'answer-result wrong';
+                gameState.teams[gameState.answeringTeam].score -= gameState.currentQuestion.points;
+                saveGame();
+                
+                setTimeout(() => {
+                    resultEl.className = 'answer-result';
+                    document.getElementById('answerInputContainer').classList.remove('active');
+                    gameState.answeringTeam = null;
+                    document.getElementById('answerInput').value = '';
+                    saveGame();
+                    renderScoreboard();
+                    
+                    // Проверяем, есть ли еще команды для ответа
+                    const remainingTeams = gameState.teams.length - gameState.attemptedTeams.length;
+                    if (remainingTeams === 0) {
+                        showCorrectAnswer();
+                    } else {
+                        // Разблокируем кнопку для других
+                        updateUIForCurrentState();
+                    }
+                }, 1500);
+            }
+            
+            renderScoreboard();
+        }
+
+        // Показать правильный ответ
+        function showCorrectAnswer() {
+            stopTimer();
+            document.getElementById('buzzButton').classList.add('disabled');
+            document.getElementById('answerInputContainer').classList.remove('active');
+            
+            const display = document.getElementById('correctAnswerDisplay');
+            display.textContent = `Правильный ответ: ${gameState.currentQuestion.answer[0]}`;
+            display.style.display = 'block';
+            
+            document.getElementById('closeBtn').style.display = 'inline-block';
+        }
+
+        // Закрыть вопрос
+        function closeQuestion() {
+            markQuestionUsed();
+            document.getElementById('questionModal').classList.remove('active');
+            stopTimer();
+            gameState.currentQuestion = null;
+            gameState.answeringTeam = null;
+            gameState.attemptedTeams = [];
+            database.ref('sigame/buzzOrder').remove();
+            renderScoreboard();
+            saveGame();
+        }
+
+        // Пометить вопрос использованным
+        function markQuestionUsed() {
+            if (!gameState.currentQuestion) return;
+            const questionId = `r${gameState.currentRound}-${gameState.currentQuestion.category}-${gameState.currentQuestion.points}`;
+            if (!gameState.usedQuestions.includes(questionId)) {
+                gameState.usedQuestions.push(questionId);
+            }
+            renderGameBoard();
+            saveGame();
+        }
+
+        // Админ контроль
+        function showAdminControls() {
+            const action = prompt('Команды:\n0-4 - Выбрать свою команду (0=Tým 1, 1=Tým 2, и т.д.)\n1r - Раунд 1\n2r - Раунд 2\nreset - Сброс игры\nrename - Переименовать команду\nВведите команду:');
+            
+            if (action === '1r') {
+                gameState.currentRound = 1;
+                showRoundIntro(1);
+                setTimeout(() => renderGameBoard(), 4000);
+                saveGame();
+            } else if (action === '2r') {
+                gameState.currentRound = 2;
+                showRoundIntro(2);
+                setTimeout(() => renderGameBoard(), 4000);
+                saveGame();
+            } else if (action === 'reset') {
+                if (confirm('Сбросить игру?')) {
+                    gameState = {
+                        teams: [
+                            { name: "Tým 1", score: 0 },
+                            { name: "Tým 2", score: 0 },
+                            { name: "Tým 3", score: 0 },
+                            { name: "Tým 4", score: 0 },
+                            { name: "Tým 5", score: 0 }
+                        ],
+                        currentRound: 1,
+                        usedQuestions: [],
+                        currentQuestion: null,
+                        answeringTeam: null,
+                        timeLeft: 20,
+                        attemptedTeams: [],
+                        buzzTimestamp: null,
+                        buzzOrder: []
+                    };
+                    database.ref('sigame/buzzOrder').remove();
+                    renderScoreboard();
+                    renderGameBoard();
+                    saveGame();
+                }
+            } else if (action === 'rename') {
+                const teamNum = prompt('Какую команду переименовать? (0-4)');
+                const idx = parseInt(teamNum);
+                if (idx >= 0 && idx < 5) {
+                    const newName = prompt('Новое название:');
+                    if (newName) {
+                        gameState.teams[idx].name = newName;
+                        renderScoreboard();
+                        saveGame();
+                    }
+                }
+            } else if (action >= '0' && action <= '4') {
+                myTeamIndex = parseInt(action);
+                alert(`Вы играете за ${gameState.teams[myTeamIndex].name}!`);
+                localStorage.setItem('myTeamIndex', myTeamIndex);
+            }
+        }
+
+        // Сохранение в Firebase
+        function saveGame() {
+            if (!isUpdatingFromFirebase) {
+                gameRef.set(gameState).catch(err => console.error('Save error:', err));
+            }
+        }
+
+        // Синхронизация с Firebase
+        gameRef.on('value', (snapshot) => {
+            const data = snapshot.val();
+            if (data && !isUpdatingFromFirebase) {
+                isUpdatingFromFirebase = true;
+                gameState = data;
+                renderScoreboard();
+                renderGameBoard();
+                updateUIForCurrentState();
+                setTimeout(() => {
+                    isUpdatingFromFirebase = false;
+                }, 100);
+            }
+        });
+
+        // Слушаем попытки нажатия кнопки
+        database.ref('sigame/buzzOrder').on('child_added', (snapshot) => {
+            if (gameState.answeringTeam !== null || !gameState.currentQuestion) return;
+            
+            const buzzData = snapshot.val();
+            const teamIndex = buzzData.teamIndex;
+            
+            // Проверяем, что команда еще не пыталась
+            if (gameState.attemptedTeams.includes(teamIndex)) return;
+            
+            // Первый кто нажал - получает право ответа
+            gameState.answeringTeam = teamIndex;
+            gameState.attemptedTeams.push(teamIndex);
+            
+            // Очищаем список попыток для следующего вопроса
+            database.ref('sigame/buzzOrder').remove();
+            
+            saveGame();
+            updateUIForAnswering();
+        });
+
+        // Обновление UI в зависимости от состояния
+        function updateUIForCurrentState() {
+            const buzzBtn = document.getElementById('buzzButton');
+            const inputContainer = document.getElementById('answerInputContainer');
+            
+            if (!gameState.currentQuestion) return;
+            
+            // Если кто-то отвечает
+            if (gameState.answeringTeam !== null) {
+                buzzBtn.classList.add('disabled');
+                
+                // Если отвечает моя команда - показываем поле ввода
+                if (gameState.answeringTeam === myTeamIndex) {
+                    inputContainer.classList.add('active');
+                    document.getElementById('answeringTeamName').textContent = gameState.teams[gameState.answeringTeam].name;
+                    document.getElementById('answerInput').focus();
+                } else {
+                    inputContainer.classList.remove('active');
+                    document.getElementById('answeringTeamName').textContent = gameState.teams[gameState.answeringTeam].name;
+                }
+            } else {
+                // Никто не отвечает - кнопка доступна
+                if (myTeamIndex !== null && !gameState.attemptedTeams.includes(myTeamIndex)) {
+                    buzzBtn.classList.remove('disabled');
+                } else {
+                    buzzBtn.classList.add('disabled');
+                }
+                inputContainer.classList.remove('active');
+            }
+        }
+
+        function updateUIForAnswering() {
+            const buzzBtn = document.getElementById('buzzButton');
+            const inputContainer = document.getElementById('answerInputContainer');
+            
+            buzzBtn.classList.add('disabled');
+            document.getElementById('answeringTeamName').textContent = gameState.teams[gameState.answeringTeam].name;
+            
+            if (gameState.answeringTeam === myTeamIndex) {
+                inputContainer.classList.add('active');
+                document.getElementById('answerInput').focus();
+            }
+            
+            renderScoreboard();
+        }
+
+        // Enter для отправки ответа
+        document.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter' && document.getElementById('answerInputContainer').classList.contains('active')) {
+                submitAnswer();
+            }
+        });
+
+        // Инициализация
+        createSnowflakes();
+        
+        // Восстанавливаем выбор команды из localStorage
+        const savedTeam = localStorage.getItem('myTeamIndex');
+        if (savedTeam !== null) {
+            myTeamIndex = parseInt(savedTeam);
+        }
+        
+        renderScoreboard();
+        showRoundIntro(1);
+        setTimeout(() => renderGameBoard(), 4000);
+    </script>
+</body>
+</html>
