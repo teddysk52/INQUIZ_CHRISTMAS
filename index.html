@@ -2,11 +2,10 @@
 <html lang="cs">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>INQUIZ 🎄 Vánoční Speciál</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>INQUIZ 🎄</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
     
-    <!-- Firebase -->
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
     
@@ -18,307 +17,111 @@
         }
 
         body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            font-family: 'Inter', sans-serif;
             background: linear-gradient(180deg, #0a1628 0%, #1a2a4a 100%);
             min-height: 100vh;
             color: #fff;
-            overflow-x: hidden;
+            padding: 20px;
         }
 
-        /* Снежинки */
-        .snowflakes {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: 1000;
-            overflow: hidden;
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
         }
 
-        .snowflake {
-            position: absolute;
-            top: -20px;
-            color: #fff;
-            font-size: 1rem;
-            animation: fall linear infinite;
-            opacity: 0.8;
-        }
-
-        @keyframes fall {
-            0% { transform: translateY(-20px) rotate(0deg); }
-            100% { transform: translateY(100vh) rotate(360deg); }
-        }
-
-        /* Гирлянда */
-        .garland {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 25px;
-            display: flex;
-            justify-content: space-around;
-            z-index: 999;
-            background: linear-gradient(180deg, rgba(0,50,0,0.8) 0%, transparent 100%);
-        }
-
-        .light {
-            width: 12px;
-            height: 18px;
-            border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
-            animation: glow 1.5s infinite;
-        }
-
-        @keyframes glow {
-            0%, 100% { opacity: 1; filter: brightness(1.5) drop-shadow(0 0 8px currentColor); }
-            50% { opacity: 0.6; }
-        }
-
-        .light:nth-child(5n+1) { background: #ff3333; color: #ff3333; animation-delay: 0s; }
-        .light:nth-child(5n+2) { background: #33ff33; color: #33ff33; animation-delay: 0.3s; }
-        .light:nth-child(5n+3) { background: #ffdd33; color: #ffdd33; animation-delay: 0.6s; }
-        .light:nth-child(5n+4) { background: #3366ff; color: #3366ff; animation-delay: 0.9s; }
-        .light:nth-child(5n+5) { background: #ff33ff; color: #ff33ff; animation-delay: 1.2s; }
-
-        /* ===== ЭКРАНЫ ===== */
-        .screen {
-            display: none;
-            min-height: 100vh;
-        }
-        .screen.active {
-            display: flex;
-            flex-direction: column;
-        }
-
-        /* ===== ЛОББИ ===== */
-        .lobby {
-            align-items: center;
-            justify-content: center;
-            padding: 50px 20px;
+        h1 {
             text-align: center;
-        }
-
-        .lobby h1 {
-            font-size: 3.5rem;
+            font-size: 3rem;
             color: #ffd700;
-            margin-bottom: 10px;
-            text-shadow: 0 0 30px rgba(255,215,0,0.5);
-        }
-
-        .lobby h2 {
-            font-size: 1.5rem;
-            color: rgba(255,255,255,0.7);
-            margin-bottom: 40px;
-        }
-
-        .input-group {
             margin-bottom: 20px;
+        }
+
+        /* ЛОББИ */
+        #lobby {
+            text-align: center;
+            padding: 50px 20px;
         }
 
         .input-field {
-            width: 100%;
-            max-width: 400px;
-            padding: 18px 25px;
+            padding: 15px;
             font-size: 1.2rem;
-            text-align: center;
+            border: 2px solid #ffd700;
+            border-radius: 10px;
             background: rgba(255,255,255,0.1);
-            border: 3px solid #ffd700;
-            border-radius: 15px;
             color: #fff;
-            font-weight: 600;
-            outline: none;
-        }
-
-        .input-field::placeholder {
-            color: rgba(255,255,255,0.5);
-        }
-
-        .btn {
-            padding: 18px 50px;
-            font-size: 1.2rem;
-            font-weight: 700;
-            border: none;
-            border-radius: 50px;
-            cursor: pointer;
-            transition: all 0.3s;
+            width: 300px;
             margin: 10px;
         }
 
-        .btn-primary {
-            background: linear-gradient(145deg, #22c55e, #16a34a);
-            color: #fff;
-            box-shadow: 0 8px 25px rgba(34,197,94,0.4);
+        .btn {
+            padding: 15px 40px;
+            font-size: 1.2rem;
+            font-weight: 700;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            margin: 10px;
         }
 
-        .btn-danger {
-            background: linear-gradient(145deg, #ef4444, #dc2626);
+        .btn-green {
+            background: #22c55e;
             color: #fff;
-            border: 3px solid #ffd700;
-            box-shadow: 0 8px 25px rgba(239,68,68,0.4);
         }
 
-        .btn-secondary {
+        .btn-red {
+            background: #ef4444;
+            color: #fff;
+        }
+
+        .btn-gray {
             background: rgba(255,255,255,0.1);
-            color: #ef4444;
-            border: 2px solid #ef4444;
+            color: #fff;
+            border: 2px solid rgba(255,255,255,0.3);
         }
 
-        .btn:hover {
-            transform: translateY(-3px);
-        }
-
-        .teams-box {
-            margin: 30px 0;
-            width: 100%;
+        .teams-list {
+            margin: 30px auto;
             max-width: 500px;
         }
 
-        .teams-title {
-            color: rgba(255,255,255,0.7);
-            margin-bottom: 15px;
-        }
-
         .team-item {
-            background: rgba(255,255,255,0.1);
-            border: 2px solid rgba(255,255,255,0.2);
-            border-radius: 12px;
-            padding: 15px 25px;
-            margin: 8px 0;
-            font-size: 1.2rem;
-            font-weight: 600;
-            color: #ffd700;
-        }
-
-        .team-item.my-team {
-            border-color: #22c55e;
-            background: rgba(34,197,94,0.2);
-        }
-
-        .password-box {
-            margin-top: 40px;
-        }
-
-        .password-field {
-            width: 200px;
             padding: 15px;
-            font-size: 1.5rem;
-            text-align: center;
-            background: rgba(255,255,255,0.1);
-            border: 2px solid rgba(255,255,255,0.3);
-            border-radius: 15px;
-            color: #fff;
-            font-weight: 600;
-            letter-spacing: 5px;
-            margin-bottom: 20px;
-        }
-
-        /* ===== ЗАСТАВКА РАУНДА ===== */
-        .intro {
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-            padding: 40px 20px;
-        }
-
-        .intro-title {
-            font-size: 4rem;
-            font-weight: 900;
-            color: #ffd700;
-            margin-bottom: 40px;
-            text-shadow: 0 0 40px rgba(255,215,0,0.6);
-        }
-
-        .themes-list {
-            max-width: 700px;
-            width: 100%;
-        }
-
-        .theme-item {
+            margin: 10px 0;
             background: rgba(255,255,255,0.1);
             border: 2px solid rgba(255,255,255,0.2);
-            border-radius: 12px;
-            padding: 18px 25px;
-            margin-bottom: 12px;
-            font-size: 1.4rem;
-            font-weight: 700;
-            opacity: 0;
-            transform: translateY(20px);
-            animation: slideUp 0.5s forwards;
+            border-radius: 10px;
+            font-size: 1.2rem;
         }
 
-        @keyframes slideUp {
-            to { opacity: 1; transform: translateY(0); }
+        /* ИГРА */
+        #game {
+            display: none;
         }
 
-        .theme-item:nth-child(1) { animation-delay: 0.3s; }
-        .theme-item:nth-child(2) { animation-delay: 0.5s; }
-        .theme-item:nth-child(3) { animation-delay: 0.7s; }
-        .theme-item:nth-child(4) { animation-delay: 0.9s; }
-        .theme-item:nth-child(5) { animation-delay: 1.1s; }
-
-        /* ===== ИГРА ===== */
-        .game {
-            padding: 40px 15px 20px;
-            max-width: 1400px;
-            margin: 0 auto;
-            width: 100%;
-        }
-
-        .header {
-            text-align: center;
-            margin-bottom: 20px;
-        }
-
-        .header h1 {
-            font-size: 2.5rem;
-            color: #ffd700;
-        }
-
-        .round-badge {
-            display: inline-block;
-            background: linear-gradient(145deg, #c41e3a, #8b0000);
-            padding: 8px 25px;
-            border-radius: 20px;
-            font-size: 1rem;
-            font-weight: 700;
-            margin-top: 10px;
-        }
-
-        /* Табло */
         .scoreboard {
             display: flex;
             justify-content: center;
-            gap: 10px;
-            margin-bottom: 20px;
+            gap: 15px;
+            margin-bottom: 30px;
             flex-wrap: wrap;
         }
 
-        .team-score {
+        .team-card {
             background: rgba(255,255,255,0.1);
-            border: 2px solid rgba(255,255,255,0.2);
-            border-radius: 12px;
-            padding: 12px 20px;
+            border: 3px solid rgba(255,255,255,0.3);
+            border-radius: 15px;
+            padding: 15px 25px;
+            min-width: 150px;
             text-align: center;
-            min-width: 120px;
-            transition: all 0.3s;
         }
 
-        .team-score.my-team {
-            border-color: #ffd700;
-            box-shadow: 0 0 20px rgba(255,215,0,0.3);
-        }
-
-        .team-score.active {
+        .team-card.active {
             border-color: #3b82f6;
-            background: rgba(59,130,246,0.2);
-            box-shadow: 0 0 25px rgba(59,130,246,0.5);
+            box-shadow: 0 0 30px rgba(59,130,246,0.5);
         }
 
-        .team-score.answering {
+        .team-card.answering {
             border-color: #22c55e;
-            background: rgba(34,197,94,0.2);
             animation: pulse 0.5s infinite;
         }
 
@@ -327,34 +130,43 @@
             50% { transform: scale(1.05); }
         }
 
-        .team-score .name {
-            font-size: 0.85rem;
+        .team-name {
+            font-size: 0.9rem;
             color: rgba(255,255,255,0.7);
             margin-bottom: 5px;
         }
 
-        .team-score .score {
-            font-size: 1.8rem;
+        .team-score {
+            font-size: 2rem;
             font-weight: 900;
             color: #ffd700;
         }
 
-        /* Игровое поле */
+        .info-banner {
+            text-align: center;
+            padding: 15px;
+            background: rgba(59,130,246,0.2);
+            border: 2px solid #3b82f6;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            font-size: 1.2rem;
+        }
+
         .board {
             display: grid;
             grid-template-columns: repeat(5, 1fr);
-            gap: 8px;
+            gap: 10px;
         }
 
         .category {
             background: linear-gradient(145deg, #c41e3a, #8b0000);
-            padding: 15px 8px;
+            padding: 20px 10px;
             text-align: center;
             border-radius: 10px;
             font-weight: 700;
-            font-size: 0.75rem;
+            font-size: 0.85rem;
             text-transform: uppercase;
-            min-height: 70px;
+            min-height: 80px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -362,12 +174,12 @@
 
         .cell {
             background: linear-gradient(145deg, #1e5128, #2d7a3a);
-            border: 2px solid rgba(255,255,255,0.1);
-            padding: 20px;
+            border: 2px solid rgba(255,255,255,0.2);
+            padding: 30px;
             text-align: center;
             border-radius: 10px;
             font-weight: 900;
-            font-size: 1.3rem;
+            font-size: 1.5rem;
             color: #ffd700;
             cursor: pointer;
             transition: all 0.3s;
@@ -384,8 +196,8 @@
             cursor: not-allowed;
         }
 
-        /* ===== МОДАЛЬНОЕ ОКНО ===== */
-        .modal {
+        /* МОДАЛКА */
+        #modal {
             display: none;
             position: fixed;
             top: 0;
@@ -393,22 +205,22 @@
             width: 100%;
             height: 100%;
             background: rgba(0,0,0,0.95);
-            z-index: 2000;
-            justify-content: center;
+            z-index: 9999;
             align-items: center;
+            justify-content: center;
             padding: 20px;
         }
 
-        .modal.active {
+        #modal.show {
             display: flex;
         }
 
-        .modal-content {
+        .modal-box {
             background: linear-gradient(145deg, #1a2a4a, #0a1628);
             border: 3px solid rgba(255,215,0,0.3);
             border-radius: 25px;
             padding: 40px;
-            max-width: 900px;
+            max-width: 800px;
             width: 100%;
             text-align: center;
             position: relative;
@@ -429,58 +241,29 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            transition: all 0.3s;
-        }
-
-        .close-btn:hover {
-            background: rgba(239,68,68,0.3);
-            border-color: #ef4444;
-        }
-
-        .modal-cat {
-            font-size: 0.9rem;
-            color: rgba(255,255,255,0.6);
-            text-transform: uppercase;
-            margin-bottom: 10px;
         }
 
         .modal-pts {
             font-size: 4rem;
             font-weight: 900;
             color: #ffd700;
-            margin-bottom: 15px;
+            margin-bottom: 20px;
         }
 
         .timer {
-            font-size: 3.5rem;
+            font-size: 3rem;
             font-weight: 900;
             color: #4ade80;
             margin-bottom: 20px;
         }
 
         .timer.warning { color: #fbbf24; }
-        .timer.danger { color: #ef4444; animation: blink 0.5s infinite; }
+        .timer.danger { color: #ef4444; }
 
-        @keyframes blink {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
-        }
-
-        .modal-q {
+        .question {
             font-size: 1.8rem;
-            line-height: 1.5;
             margin-bottom: 30px;
-        }
-
-        .answering-info {
-            font-size: 1.3rem;
-            color: rgba(255,255,255,0.7);
-            margin-bottom: 20px;
-        }
-
-        .answering-info .team {
-            color: #ffd700;
-            font-weight: 900;
+            line-height: 1.5;
         }
 
         .buzz-btn {
@@ -489,7 +272,7 @@
             background: linear-gradient(145deg, #ef4444, #dc2626);
             border: 5px solid #ffd700;
             border-radius: 50%;
-            font-size: 1.3rem;
+            font-size: 1.2rem;
             font-weight: 900;
             color: #fff;
             cursor: pointer;
@@ -498,7 +281,6 @@
             align-items: center;
             justify-content: center;
             box-shadow: 0 10px 30px rgba(239,68,68,0.4);
-            transition: all 0.3s;
         }
 
         .buzz-btn:hover:not(.disabled) {
@@ -511,27 +293,17 @@
             cursor: not-allowed;
         }
 
-        .answer-box {
-            display: none;
-            margin-top: 20px;
-        }
-
-        .answer-box.active {
-            display: block;
-        }
-
         .answer-input {
             width: 100%;
-            max-width: 450px;
-            padding: 18px;
-            font-size: 1.4rem;
+            max-width: 500px;
+            padding: 20px;
+            font-size: 1.5rem;
             text-align: center;
             background: rgba(255,255,255,0.1);
             border: 3px solid #ffd700;
             border-radius: 15px;
             color: #fff;
-            font-weight: 600;
-            margin-bottom: 15px;
+            margin-bottom: 20px;
         }
 
         .result {
@@ -540,164 +312,105 @@
             padding: 20px;
             border-radius: 15px;
             margin: 20px 0;
-            display: none;
         }
 
         .result.correct {
-            display: block;
             background: rgba(34,197,94,0.2);
             border: 3px solid #22c55e;
             color: #22c55e;
         }
 
         .result.wrong {
-            display: block;
             background: rgba(239,68,68,0.2);
             border: 3px solid #ef4444;
             color: #ef4444;
         }
 
-        .correct-answer {
-            margin-top: 20px;
-            padding: 15px;
-            background: rgba(74,222,128,0.1);
-            border-radius: 10px;
-            color: #4ade80;
-            font-size: 1.2rem;
-        }
+        .hidden { display: none !important; }
 
-        /* Админ кнопка */
         .admin-btn {
             position: fixed;
-            top: 35px;
-            right: 15px;
-            width: 45px;
-            height: 45px;
+            bottom: 20px;
+            right: 20px;
+            width: 60px;
+            height: 60px;
             background: rgba(255,255,255,0.1);
             border: 2px solid rgba(255,255,255,0.3);
             border-radius: 50%;
             color: #fff;
-            font-size: 1.3rem;
+            font-size: 1.5rem;
             cursor: pointer;
-            z-index: 1001;
+            z-index: 1000;
         }
 
-        /* Инфо о выборе */
-        .select-info {
-            text-align: center;
-            padding: 15px;
-            background: rgba(59,130,246,0.2);
-            border: 2px solid rgba(59,130,246,0.5);
-            border-radius: 15px;
-            margin-bottom: 15px;
-            font-size: 1.1rem;
-            color: #60a5fa;
-            font-weight: 700;
-        }
-
-        .select-info .team {
-            color: #ffd700;
-            font-size: 1.3rem;
-        }
-
-        /* Адаптивность */
         @media (max-width: 768px) {
-            .lobby h1 { font-size: 2.5rem; }
-            .intro-title { font-size: 2.5rem; }
-            .theme-item { font-size: 1.1rem; padding: 14px 20px; }
+            h1 { font-size: 2rem; }
             .board { gap: 5px; }
-            .category { font-size: 0.6rem; padding: 10px 5px; min-height: 55px; }
-            .cell { padding: 12px 8px; font-size: 1rem; }
-            .modal-content { padding: 25px 15px; }
-            .modal-q { font-size: 1.3rem; }
-            .modal-pts { font-size: 3rem; }
-            .timer { font-size: 2.5rem; }
-            .buzz-btn { width: 140px; height: 140px; font-size: 1rem; }
-            .team-score { min-width: 90px; padding: 10px 12px; }
-            .team-score .score { font-size: 1.4rem; }
+            .category { font-size: 0.7rem; padding: 10px 5px; min-height: 60px; }
+            .cell { padding: 15px; font-size: 1.2rem; }
+            .modal-box { padding: 30px 20px; }
+            .question { font-size: 1.3rem; }
+            .buzz-btn { width: 150px; height: 150px; }
         }
     </style>
 </head>
 <body>
-    <!-- Гирлянда -->
-    <div class="garland" id="garland"></div>
-    
-    <!-- Снежинки -->
-    <div class="snowflakes" id="snowflakes"></div>
+    <button class="admin-btn" onclick="adminReset()">⚙️</button>
 
-    <!-- Админ кнопка -->
-    <button class="admin-btn" onclick="adminPanel()">⚙️</button>
-
-    <!-- ===== ЛОББИ ===== -->
-    <div class="screen lobby" id="lobbyScreen">
+    <!-- ЛОББИ -->
+    <div id="lobby">
         <h1>🎄 INQUIZ 🎄</h1>
-        <h2>Vánoční Speciál ❄️</h2>
+        <h2>Vánoční Speciál</h2>
         
-        <div class="input-group">
-            <input type="text" class="input-field" id="teamInput" placeholder="Název vašeho týmu..." maxlength="20">
-        </div>
-        <button class="btn btn-primary" onclick="joinTeam()">➕ Přidat tým</button>
+        <input type="text" id="teamInput" class="input-field" placeholder="Název týmu..." maxlength="20">
+        <br>
+        <button class="btn btn-green" onclick="addTeam()">➕ Přidat tým</button>
         
-        <div class="teams-box">
-            <div class="teams-title">Týmy v lobby:</div>
-            <div id="teamsList"></div>
-        </div>
+        <div class="teams-list" id="teamsList"></div>
         
-        <div class="password-box">
-            <input type="password" class="password-field" id="passwordInput" placeholder="••••" maxlength="4">
-            <br>
-            <button class="btn btn-danger" onclick="startGame()">🚀 ZAČÍT HRU</button>
-            <br><br>
-            <button class="btn btn-secondary" onclick="clearTeams()">🗑️ Vymazat týmy</button>
-        </div>
+        <input type="password" id="passInput" class="input-field" placeholder="Heslo (6952)" maxlength="4" style="width: 200px;">
+        <br>
+        <button class="btn btn-red" onclick="startGame()">🚀 ZAČÍT HRU</button>
+        <br>
+        <button class="btn btn-gray" onclick="clearAll()">🗑️ Vymazat vše</button>
     </div>
 
-    <!-- ===== ЗАСТАВКА РАУНДА ===== -->
-    <div class="screen intro" id="introScreen">
-        <div class="intro-title" id="introTitle">KOLO 1</div>
-        <div class="themes-list" id="themesList"></div>
-    </div>
-
-    <!-- ===== ИГРА ===== -->
-    <div class="screen game" id="gameScreen">
-        <div class="header">
-            <h1>🎄 INQUIZ 🎄</h1>
-            <div class="round-badge" id="roundBadge">KOLO 1</div>
-        </div>
+    <!-- ИГРА -->
+    <div id="game" class="container">
+        <h1>🎄 INQUIZ 🎄</h1>
         
-        <div id="selectInfo" class="select-info" style="display:none;"></div>
-        <div class="scoreboard" id="scoreboard"></div>
-        <div class="board" id="board"></div>
+        <div id="infoBanner" class="info-banner"></div>
+        <div id="scoreboard" class="scoreboard"></div>
+        <div id="board" class="board"></div>
     </div>
 
-    <!-- ===== МОДАЛЬНОЕ ОКНО ===== -->
-    <div class="modal" id="modal">
-        <div class="modal-content">
-            <button class="close-btn" onclick="closeQuestion()">✕</button>
-            <div class="modal-cat" id="modalCat"></div>
+    <!-- МОДАЛКА -->
+    <div id="modal">
+        <div class="modal-box">
+            <div class="close-btn" onclick="closeQuestion()">✕</div>
             <div class="modal-pts" id="modalPts"></div>
             <div class="timer" id="timer">20</div>
-            <div class="modal-q" id="modalQ"></div>
+            <div class="question" id="question"></div>
             
-            <div class="answering-info" id="answeringInfo" style="display:none;">
-                Odpovídá: <span class="team" id="answeringTeam"></span>
+            <div id="answeringInfo" class="hidden">
+                Odpovídá: <strong id="answeringTeam"></strong>
             </div>
             
             <button class="buzz-btn" id="buzzBtn" onclick="buzz()">🔔<br>ODPOVĚDĚT</button>
             
-            <div class="answer-box" id="answerBox">
-                <input type="text" class="answer-input" id="answerInput" placeholder="Vaše odpověď...">
+            <div id="answerSection" class="hidden">
+                <input type="text" id="answerInput" class="answer-input" placeholder="Vaše odpověď...">
                 <br>
-                <button class="btn btn-primary" onclick="submitAnswer()">Odeslat</button>
+                <button class="btn btn-green" onclick="submitAnswer()">Odeslat</button>
             </div>
             
-            <div class="result" id="result"></div>
-            <div class="correct-answer" id="correctAnswer" style="display:none;"></div>
+            <div id="result" class="result hidden"></div>
+            <div id="correctAnswer" class="hidden" style="margin-top: 20px; color: #4ade80; font-size: 1.2rem;"></div>
         </div>
     </div>
 
     <script>
-        // ===== FIREBASE =====
+        // Firebase
         const firebaseConfig = {
             apiKey: "AIzaSyDwo2GKOXEDDs31kRfFCQLy_TcXRC2DF0",
             authDomain: "inquiz-a82e2.firebaseapp.com",
@@ -708,346 +421,238 @@
             appId: "1:943129879818:web:366e32fe072182cd0d86f3"
         };
         firebase.initializeApp(firebaseConfig);
-        const db = firebase.database();
-        const gameRef = db.ref('inquiz2');
+        const db = firebase.database().ref('game3');
 
-        // ===== ВОПРОСЫ =====
-        const questions = {
+        // Вопросы
+        const Q = {
             1: {
                 "Minecraft 🎮": [
-                    { q: "Jak se jmenuje hlavní boss v Minecraftu?", a: ["ender dragon", "enderdragon", "дракон"] },
-                    { q: "Kolik bloků obsidiánu potřebuješ na portál do Netheru?", a: ["10", "deset"] },
-                    { q: "Jak se jmenuje dimenze s Endermany?", a: ["the end", "end", "энд"] },
-                    { q: "Čím ochočíš vlka?", a: ["kost", "bone", "кость"] },
-                    { q: "V jakém roce vyšel Minecraft 1.0?", a: ["2011"] }
+                    {q: "Jak se jmenuje hlavní boss?", a: ["ender dragon", "enderdragon"]},
+                    {q: "Kolik bloků obsidiánu na portál?", a: ["10", "deset"]},
+                    {q: "Dimenze s Endermany?", a: ["the end", "end"]},
+                    {q: "Čím ochočíš vlka?", a: ["kost", "bone"]},
+                    {q: "Rok vydání Minecraft 1.0?", a: ["2011"]}
                 ],
-                "Programování 💻": [
-                    { q: "Jak se nazývá chyba v kódu?", a: ["bug", "баг", "chyba"] },
-                    { q: "Který jazyk je pojmenován po kávě?", a: ["java", "джава"] },
-                    { q: "Co znamená HTML?", a: ["hypertext markup language"] },
-                    { q: "Operátor pro porovnání v Pythonu?", a: ["==", "rovná se"] },
-                    { q: "Datová struktura LIFO?", a: ["stack", "zásobník", "стек"] }
+                "IT 💻": [
+                    {q: "Chyba v kódu?", a: ["bug", "chyba"]},
+                    {q: "Jazyk pojmenovaný po kávě?", a: ["java"]},
+                    {q: "Co znamená HTML?", a: ["hypertext markup language"]},
+                    {q: "Operátor porovnání?", a: ["=="]},
+                    {q: "LIFO struktura?", a: ["stack", "zásobník"]}
                 ],
-                "IT & Tech 🖥️": [
-                    { q: "Co znamená USB?", a: ["universal serial bus"] },
-                    { q: "Která společnost vytvořila iPhone?", a: ["apple", "эпл"] },
-                    { q: "Co je RAM?", a: ["operační paměť", "random access memory", "память"] },
-                    { q: "Kdy byl založen Google?", a: ["1998"] },
-                    { q: "Protokol pro bezpečný přenos dat na webu?", a: ["https", "http"] }
+                "Tech 🖥️": [
+                    {q: "Co je USB?", a: ["universal serial bus"]},
+                    {q: "Kdo vytvořil iPhone?", a: ["apple"]},
+                    {q: "Co je RAM?", a: ["paměť", "random access memory"]},
+                    {q: "Rok založení Google?", a: ["1998"]},
+                    {q: "Bezpečný protokol webu?", a: ["https"]}
                 ],
                 "Memes 😂": [
-                    { q: "Jak se nazývá vtipný obrázek na internetu?", a: ["meme", "мем"] },
-                    { q: "Slavný meme s kočkou u stolu se ženou?", a: ["woman yelling at cat", "žena křičí na kočku"] },
-                    { q: "Co je 'rickrolling'?", a: ["rick astley", "never gonna give you up", "rick"] },
-                    { q: "Jaké plemeno je pes z meme 'Doge'?", a: ["shiba", "shiba inu"] },
-                    { q: "Co znamená LOL?", a: ["laughing out loud", "лол"] }
+                    {q: "Vtipný obrázek na netu?", a: ["meme"]},
+                    {q: "Kočka u stolu?", a: ["woman yelling at cat"]},
+                    {q: "Co je rickrolling?", a: ["rick astley", "never gonna give you up"]},
+                    {q: "Pes Doge?", a: ["shiba", "shiba inu"]},
+                    {q: "Co je LOL?", a: ["laughing out loud", "lol"]}
                 ],
                 "Vánoce 🎄": [
-                    { q: "Jak se jmenuje sob s červeným nosem?", a: ["rudolf", "рудольф"] },
-                    { q: "Z jaké země pochází tradice vánočního stromku?", a: ["německo", "germany", "германия"] },
-                    { q: "Vánoční nápoj z mléka a vajec?", a: ["eggnog", "эгног", "vaječný koňak"] },
-                    { q: "Kolik sobů táhne Santovy sáně (bez Rudolfa)?", a: ["8", "osm"] },
-                    { q: "Kalendář s okénky před Vánocemi?", a: ["adventní kalendář", "advent", "adventní"] }
-                ]
-            },
-            2: {
-                "Games 🎮": [
-                    { q: "Která hra má mapu 'Dust 2'?", a: ["counter-strike", "cs", "csgo", "cs2", "counter strike"] },
-                    { q: "Kde sbíráš V-Bucks?", a: ["fortnite", "форнайт"] },
-                    { q: "Hlavní postava série Witcher?", a: ["geralt", "геральт", "ведьмак"] },
-                    { q: "Herní engine od Epic Games?", a: ["unreal engine", "unreal"] },
-                    { q: "Hra s zelenými 'Creepery'?", a: ["minecraft"] }
-                ],
-                "Škola 📚": [
-                    { q: "Kolik minut trvá jedna školní hodina?", a: ["45", "čtyřicet pět"] },
-                    { q: "Jaká je nejhorší známka v ČR?", a: ["5", "pětka", "nedostatečná"] },
-                    { q: "Kolik let trvá základní škola?", a: ["9", "devět"] },
-                    { q: "Předmět se zkratkou 'M'?", a: ["matematika", "matika"] },
-                    { q: "Kolik minut trvá malá přestávka?", a: ["10", "deset"] }
-                ],
-                "WTF Fakty 🤯": [
-                    { q: "Které zvíře údajně nikdy nespí?", a: ["žába", "žralok", "frog", "shark", "bullfrog"] },
-                    { q: "Kolik procent oceánu je prozkoumáno?", a: ["5", "pět"] },
-                    { q: "Které zvíře má modrou krev?", a: ["chobotnice", "octopus", "krakatice"] },
-                    { q: "Která planeta má den delší než rok?", a: ["venuše", "venus"] },
-                    { q: "Nejrychlejší suchozemské zvíře?", a: ["gepard", "cheetah"] }
-                ],
-                "Random 🎲": [
-                    { q: "Kolik minut má hodina?", a: ["60", "šedesát"] },
-                    { q: "Nejpopulárnější video hosting?", a: ["youtube", "ютуб"] },
-                    { q: "Měna Japonska?", a: ["jen", "yen"] },
-                    { q: "Hlavní město Francie?", a: ["paříž", "paris"] },
-                    { q: "Kolik dní má rok?", a: ["365"] }
-                ],
-                "Adam Hojer 👑": [
-                    { q: "Kolik let je Adamovi?", a: ["20", "dvacet", "21", "dvacet jedna"] },
-                    { q: "V jakém měsíci má Adam narozeniny?", a: ["srpen", "august"] },
-                    { q: "Na jaké fakultě studuje Adam?", a: ["ekonomická", "ekonomika", "vse"] },
-                    { q: "Oblíbený dopravní prostředek Adama?", a: ["trolejbus", "tramvaj", "mhd"] },
-                    { q: "Ve kterém městě Adam studuje?", a: ["praha", "prague"] }
+                    {q: "Sob s červeným nosem?", a: ["rudolf"]},
+                    {q: "Země vánočního stromku?", a: ["německo", "germany"]},
+                    {q: "Nápoj z mléka a vajec?", a: ["eggnog"]},
+                    {q: "Kolik sobů (bez Rudolfa)?", a: ["8", "osm"]},
+                    {q: "Kalendář s okénky?", a: ["adventní", "advent"]}
                 ]
             }
         };
 
-        const pointValues = [200, 400, 600, 800, 1000];
+        const PTS = [200, 400, 600, 800, 1000];
 
-        // ===== СОСТОЯНИЕ =====
-        let state = {
-            phase: 'lobby',
-            teams: [],
-            round: 1,
-            used: [],
-            current: null,
-            answering: null,
-            tried: [],
-            timerStart: null,
-            activeTeam: null
-        };
+        // State
+        let game = {};
+        let myTeam = localStorage.getItem('myTeam') || '';
+        let timer = null;
 
-        let myTeam = localStorage.getItem('inquiz_team') || '';
-        let timerInterval = null;
-
-        // ===== ИНИЦИАЛИЗАЦИЯ =====
-        function init() {
-            createGarland();
-            createSnowflakes();
-            
-            // Enter для ввода
-            document.getElementById('teamInput').addEventListener('keypress', e => {
-                if (e.key === 'Enter') joinTeam();
-            });
-            document.getElementById('answerInput').addEventListener('keypress', e => {
-                if (e.key === 'Enter') submitAnswer();
-            });
-
-            // Слушаем Firebase
-            gameRef.on('value', snap => {
-                const data = snap.val();
-                if (data) {
-                    const oldPhase = state.phase;
-                    const oldCurrent = state.current;
-                    state = data;
-                    render();
-                }
-            });
-        }
+        // Init
+        db.on('value', s => {
+            const data = s.val();
+            if (data) {
+                game = data;
+                render();
+            }
+        });
 
         function save() {
-            gameRef.set(state);
+            db.set(game);
         }
 
-        // ===== РЕНДЕР =====
         function render() {
-            // Скрываем все экраны
-            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-            
-            if (state.phase === 'lobby') {
-                document.getElementById('lobbyScreen').classList.add('active');
-                renderTeams();
-                hideModal();
-            } 
-            else if (state.phase === 'intro') {
-                document.getElementById('introScreen').classList.add('active');
-                showIntro();
-                hideModal();
-            }
-            else if (state.phase === 'game') {
-                document.getElementById('gameScreen').classList.add('active');
+            if (!game.started) {
+                document.getElementById('lobby').style.display = 'block';
+                document.getElementById('game').style.display = 'none';
+                document.getElementById('modal').classList.remove('show');
+                renderTeamsList();
+            } else {
+                document.getElementById('lobby').style.display = 'none';
+                document.getElementById('game').style.display = 'block';
                 renderScoreboard();
                 renderBoard();
                 
-                if (state.current) {
+                if (game.current) {
                     showModal();
                 } else {
-                    hideModal();
+                    document.getElementById('modal').classList.remove('show');
+                    stopTimer();
                 }
             }
         }
 
-        // ===== ЛОББИ =====
-        function renderTeams() {
+        // ЛОББИ
+        function renderTeamsList() {
             const list = document.getElementById('teamsList');
-            if (!state.teams || state.teams.length === 0) {
-                list.innerHTML = '<div style="color: rgba(255,255,255,0.4)">Zatím žádné týmy...</div>';
+            if (!game.teams || game.teams.length === 0) {
+                list.innerHTML = '<div style="color: rgba(255,255,255,0.5)">Žádné týmy...</div>';
                 return;
             }
-            list.innerHTML = state.teams.map((t, i) => 
-                `<div class="team-item ${t.name === myTeam ? 'my-team' : ''}">${i+1}. ${t.name}</div>`
+            list.innerHTML = game.teams.map((t, i) => 
+                `<div class="team-item">${i+1}. ${t.name} - ${t.score} bodů</div>`
             ).join('');
         }
 
-        function joinTeam() {
+        function addTeam() {
             const input = document.getElementById('teamInput');
             const name = input.value.trim();
-            if (!name) return alert('Zadejte název týmu!');
-            if (state.teams && state.teams.some(t => t.name === name)) return alert('Tým již existuje!');
+            if (!name) return alert('Zadejte název!');
             
-            if (!state.teams) state.teams = [];
-            state.teams.push({ name, score: 0 });
+            if (!game.teams) game.teams = [];
+            if (game.teams.some(t => t.name === name)) return alert('Už existuje!');
+            
+            game.teams.push({name, score: 0});
             myTeam = name;
-            localStorage.setItem('inquiz_team', myTeam);
+            localStorage.setItem('myTeam', name);
             input.value = '';
             save();
         }
 
-        function clearTeams() {
-            const pass = prompt('Heslo pro vymazání:');
-            if (pass !== '6952') return alert('Špatné heslo!');
-            state.teams = [];
+        function clearAll() {
+            const pass = prompt('Heslo:');
+            if (pass !== '6952') return;
+            game = {started: false, teams: [], used: []};
             myTeam = '';
-            localStorage.removeItem('inquiz_team');
+            localStorage.removeItem('myTeam');
             save();
         }
 
         function startGame() {
-            const pass = document.getElementById('passwordInput').value;
+            const pass = document.getElementById('passInput').value;
             if (pass !== '6952') return alert('Špatné heslo!');
-            if (!state.teams || state.teams.length === 0) return alert('Přidejte alespoň jeden tým!');
+            if (!game.teams || game.teams.length === 0) return alert('Přidejte týmy!');
             
-            state.phase = 'intro';
-            state.round = 1;
-            state.used = [];
-            state.current = null;
-            state.answering = null;
-            state.tried = [];
-            state.timerStart = null;
-            state.activeTeam = Math.floor(Math.random() * state.teams.length);
+            game.started = true;
+            game.round = 1;
+            game.used = [];
+            game.current = null;
+            game.activeTeam = Math.floor(Math.random() * game.teams.length);
             save();
         }
 
-        // ===== ЗАСТАВКА =====
-        function showIntro() {
-            document.getElementById('introTitle').textContent = `KOLO ${state.round}`;
-            const themes = Object.keys(questions[state.round]);
-            document.getElementById('themesList').innerHTML = themes.map(t => 
-                `<div class="theme-item">${t}</div>`
-            ).join('');
-            
-            // Переход к игре через 4 сек
-            setTimeout(() => {
-                if (state.phase === 'intro') {
-                    state.phase = 'game';
-                    save();
-                }
-            }, 4000);
-        }
-
-        // ===== ИГРА =====
+        // ИГРА
         function renderScoreboard() {
             const sb = document.getElementById('scoreboard');
-            sb.innerHTML = state.teams.map((t, i) => {
-                let cls = 'team-score';
-                if (t.name === myTeam) cls += ' my-team';
-                if (state.answering === i) cls += ' answering';
-                if (state.activeTeam === i && !state.current) cls += ' active';
+            sb.innerHTML = game.teams.map((t, i) => {
+                let cls = 'team-card';
+                if (game.activeTeam === i && !game.current) cls += ' active';
+                if (game.answering === i) cls += ' answering';
                 return `<div class="${cls}">
-                    <div class="name">${t.name}</div>
-                    <div class="score">${t.score}</div>
+                    <div class="team-name">${t.name}</div>
+                    <div class="team-score">${t.score}</div>
                 </div>`;
             }).join('');
-            
-            document.getElementById('roundBadge').textContent = `KOLO ${state.round}`;
-            
-            // Показываем инфо о выборе
-            const info = document.getElementById('selectInfo');
-            if (state.activeTeam !== null && !state.current) {
+
+            const info = document.getElementById('infoBanner');
+            if (game.activeTeam !== null && !game.current) {
                 info.style.display = 'block';
-                info.innerHTML = `Vybírá otázku: <span class="team">${state.teams[state.activeTeam].name}</span>`;
+                info.innerHTML = `<strong>${game.teams[game.activeTeam].name}</strong> vybírá otázku`;
             } else {
                 info.style.display = 'none';
             }
         }
 
         function renderBoard() {
-            const board = document.getElementById('board');
-            const cats = Object.keys(questions[state.round]);
-            
+            const cats = Object.keys(Q[game.round || 1]);
             let html = cats.map(c => `<div class="category">${c}</div>`).join('');
             
-            pointValues.forEach((pts, row) => {
+            PTS.forEach((pts, row) => {
                 cats.forEach((cat, col) => {
-                    const id = `${state.round}-${col}-${row}`;
-                    const used = state.used && state.used.includes(id);
+                    const id = `${game.round}-${col}-${row}`;
+                    const used = game.used && game.used.includes(id);
                     html += `<div class="cell ${used ? 'used' : ''}" onclick="openQ('${cat}', ${row})">${pts}</div>`;
                 });
             });
             
-            board.innerHTML = html;
+            document.getElementById('board').innerHTML = html;
         }
 
-        // ===== ВОПРОС =====
+        // ВОПРОС
         function openQ(cat, idx) {
-            const cats = Object.keys(questions[state.round]);
+            if (game.current) return;
+            
+            const cats = Object.keys(Q[game.round]);
             const catIdx = cats.indexOf(cat);
-            const id = `${state.round}-${catIdx}-${idx}`;
+            const id = `${game.round}-${catIdx}-${idx}`;
             
-            if (state.used && state.used.includes(id)) return;
-            if (state.current) return;
+            if (game.used && game.used.includes(id)) return;
             
-            // Проверяем, может ли текущая команда выбирать
-            const myIdx = state.teams.findIndex(t => t.name === myTeam);
-            if (state.activeTeam !== null && myIdx !== state.activeTeam) {
-                alert('Není vaše řada vybírat otázku!');
-                return;
+            const myIdx = game.teams.findIndex(t => t.name === myTeam);
+            if (game.activeTeam !== null && myIdx !== game.activeTeam) {
+                return alert('Není vaše řada!');
             }
             
-            const q = questions[state.round][cat][idx];
-            state.current = {
+            const q = Q[game.round][cat][idx];
+            game.current = {
                 id,
-                cat,
-                pts: pointValues[idx],
+                pts: PTS[idx],
                 q: q.q,
                 a: q.a
             };
-            state.answering = null;
-            state.tried = [];
-            state.timerStart = Date.now();
+            game.answering = null;
+            game.tried = [];
+            game.timerStart = Date.now();
             save();
         }
 
         function showModal() {
-            const c = state.current;
-            document.getElementById('modalCat').textContent = c.cat;
-            document.getElementById('modalPts').textContent = c.pts;
-            document.getElementById('modalQ').textContent = c.q;
-            
-            document.getElementById('result').className = 'result';
-            document.getElementById('correctAnswer').style.display = 'none';
+            document.getElementById('modalPts').textContent = game.current.pts;
+            document.getElementById('question').textContent = game.current.q;
+            document.getElementById('result').className = 'result hidden';
+            document.getElementById('correctAnswer').className = 'hidden';
             document.getElementById('answerInput').value = '';
             
             updateBuzzState();
-            document.getElementById('modal').classList.add('active');
+            document.getElementById('modal').classList.add('show');
             startTimer();
         }
 
-        function hideModal() {
-            document.getElementById('modal').classList.remove('active');
-            stopTimer();
-        }
-
         function updateBuzzState() {
+            const myIdx = game.teams.findIndex(t => t.name === myTeam);
             const buzzBtn = document.getElementById('buzzBtn');
-            const answerBox = document.getElementById('answerBox');
+            const answerSection = document.getElementById('answerSection');
             const info = document.getElementById('answeringInfo');
             
-            const myIdx = state.teams.findIndex(t => t.name === myTeam);
-            
-            if (state.answering !== null && state.answering !== undefined) {
+            if (game.answering !== null && game.answering !== undefined) {
                 buzzBtn.classList.add('disabled');
-                info.style.display = 'block';
-                document.getElementById('answeringTeam').textContent = state.teams[state.answering].name;
+                info.classList.remove('hidden');
+                document.getElementById('answeringTeam').textContent = game.teams[game.answering].name;
                 
-                if (state.answering === myIdx) {
-                    answerBox.classList.add('active');
+                if (game.answering === myIdx) {
+                    answerSection.classList.remove('hidden');
                     setTimeout(() => document.getElementById('answerInput').focus(), 100);
                 } else {
-                    answerBox.classList.remove('active');
+                    answerSection.classList.add('hidden');
                 }
             } else {
-                info.style.display = 'none';
-                answerBox.classList.remove('active');
+                info.classList.add('hidden');
+                answerSection.classList.add('hidden');
                 
-                if (myIdx === -1 || (state.tried && state.tried.includes(myIdx))) {
+                if (myIdx === -1 || (game.tried && game.tried.includes(myIdx))) {
                     buzzBtn.classList.add('disabled');
                 } else {
                     buzzBtn.classList.remove('disabled');
@@ -1056,27 +661,27 @@
         }
 
         function buzz() {
-            const myIdx = state.teams.findIndex(t => t.name === myTeam);
-            if (myIdx === -1) return alert('Nejste v žádném týmu!');
-            if (state.answering !== null && state.answering !== undefined) return;
-            if (state.tried && state.tried.includes(myIdx)) return;
+            const myIdx = game.teams.findIndex(t => t.name === myTeam);
+            if (myIdx === -1) return;
+            if (game.answering !== null) return;
+            if (game.tried && game.tried.includes(myIdx)) return;
             
-            state.answering = myIdx;
-            if (!state.tried) state.tried = [];
-            state.tried.push(myIdx);
+            game.answering = myIdx;
+            if (!game.tried) game.tried = [];
+            game.tried.push(myIdx);
             save();
         }
 
         function submitAnswer() {
-            const myIdx = state.teams.findIndex(t => t.name === myTeam);
-            if (state.answering !== myIdx) return;
+            const myIdx = game.teams.findIndex(t => t.name === myTeam);
+            if (game.answering !== myIdx) return;
             
             const input = document.getElementById('answerInput').value.trim().toLowerCase();
             if (!input) return;
             
-            const correct = state.current.a.some(a => {
-                const answer = a.toLowerCase();
-                return input === answer || input.includes(answer) || answer.includes(input);
+            const correct = game.current.a.some(a => {
+                const ans = a.toLowerCase();
+                return input === ans || input.includes(ans) || ans.includes(input);
             });
             
             const result = document.getElementById('result');
@@ -1084,189 +689,121 @@
             if (correct) {
                 result.textContent = '✅ SPRÁVNĚ!';
                 result.className = 'result correct';
-                state.teams[myIdx].score += state.current.pts;
-                state.activeTeam = myIdx; // Команда выбирает следующий вопрос
+                game.teams[myIdx].score += game.current.pts;
+                game.activeTeam = myIdx;
                 
-                if (!state.used) state.used = [];
-                state.used.push(state.current.id);
+                if (!game.used) game.used = [];
+                game.used.push(game.current.id);
                 save();
                 
                 setTimeout(() => {
-                    closeQ();
+                    game.current = null;
+                    game.answering = null;
+                    game.tried = [];
+                    save();
                 }, 2000);
             } else {
                 result.textContent = '❌ ŠPATNĚ!';
                 result.className = 'result wrong';
-                state.teams[myIdx].score -= state.current.pts;
-                state.answering = null;
-                state.timerStart = Date.now(); // Перезапускаем таймер
+                game.teams[myIdx].score -= game.current.pts;
+                game.answering = null;
+                game.timerStart = Date.now();
                 save();
                 
                 setTimeout(() => {
-                    result.className = 'result';
-                    
-                    if (state.tried && state.tried.length >= state.teams.length) {
-                        timeUp();
+                    result.className = 'result hidden';
+                    if (game.tried && game.tried.length >= game.teams.length) {
+                        showCorrect();
                     }
                 }, 1500);
             }
         }
 
-        function timeUp() {
+        function showCorrect() {
             stopTimer();
             document.getElementById('buzzBtn').classList.add('disabled');
-            document.getElementById('answerBox').classList.remove('active');
+            document.getElementById('answerSection').classList.add('hidden');
             
-            const correct = document.getElementById('correctAnswer');
-            correct.textContent = 'Správná odpověď: ' + state.current.a[0];
-            correct.style.display = 'block';
+            const ca = document.getElementById('correctAnswer');
+            ca.textContent = 'Správná odpověď: ' + game.current.a[0];
+            ca.classList.remove('hidden');
             
-            if (!state.used) state.used = [];
-            state.used.push(state.current.id);
+            if (!game.used) game.used = [];
+            game.used.push(game.current.id);
             save();
             
             setTimeout(() => {
-                closeQ();
+                game.current = null;
+                game.answering = null;
+                game.tried = [];
+                save();
             }, 3000);
         }
 
-        function closeQ() {
-            state.current = null;
-            state.answering = null;
-            state.tried = [];
-            state.timerStart = null;
+        function closeQuestion() {
+            const pass = prompt('Heslo:');
+            if (pass !== '6952') return;
+            
+            if (game.current) {
+                if (!game.used) game.used = [];
+                game.used.push(game.current.id);
+            }
+            game.current = null;
+            game.answering = null;
+            game.tried = [];
             save();
         }
 
-        function closeQuestion() {
-            const pass = prompt('Heslo pro zavření:');
-            if (pass !== '6952') return;
-            
-            if (state.current) {
-                if (!state.used) state.used = [];
-                state.used.push(state.current.id);
-            }
-            closeQ();
-        }
-
-        // ===== ТАЙМЕР =====
+        // ТАЙМЕР
         function startTimer() {
             stopTimer();
-            timerInterval = setInterval(updateTimer, 100);
+            timer = setInterval(updateTimer, 100);
         }
 
         function updateTimer() {
-            if (!state.timerStart || !state.current) return;
+            if (!game.timerStart || !game.current) return;
             
-            const elapsed = Math.floor((Date.now() - state.timerStart) / 1000);
+            const elapsed = Math.floor((Date.now() - game.timerStart) / 1000);
             const remaining = Math.max(0, 20 - elapsed);
             
-            const timer = document.getElementById('timer');
-            timer.textContent = remaining;
+            const t = document.getElementById('timer');
+            t.textContent = remaining;
+            t.className = 'timer';
+            if (remaining <= 5) t.className = 'timer danger';
+            else if (remaining <= 10) t.className = 'timer warning';
             
-            timer.classList.remove('warning', 'danger');
-            if (remaining <= 5) timer.classList.add('danger');
-            else if (remaining <= 10) timer.classList.add('warning');
-            
-            if (remaining <= 0 && state.current) {
-                timeUp();
-            }
+            if (remaining <= 0) showCorrect();
         }
 
         function stopTimer() {
-            if (timerInterval) {
-                clearInterval(timerInterval);
-                timerInterval = null;
-            }
+            if (timer) clearInterval(timer);
         }
 
-        // ===== АДМИН =====
-        function adminPanel() {
-            const cmd = prompt('ADMIN PANEL\n\nPříkazy:\n1 - Kolo 1\n2 - Kolo 2\nreset - Úplný reset\nlobby - Zpět do lobby\nscores - Upravit body');
+        // АДМИН
+        function adminReset() {
+            const pass = prompt('Admin heslo:');
+            if (pass !== '6952') return;
             
-            if (!cmd) return;
-            
-            if (cmd === '1') {
-                const pass = prompt('Heslo:');
-                if (pass !== '6952') return;
-                state.round = 1;
-                state.phase = 'intro';
-                state.current = null;
-                state.used = state.used ? state.used.filter(u => !u.startsWith('1-')) : [];
-                save();
-            } 
-            else if (cmd === '2') {
-                const pass = prompt('Heslo:');
-                if (pass !== '6952') return;
-                state.round = 2;
-                state.phase = 'intro';
-                state.current = null;
-                state.used = state.used ? state.used.filter(u => !u.startsWith('2-')) : [];
-                save();
-            } 
-            else if (cmd === 'reset') {
-                const pass = prompt('Heslo pro reset:');
-                if (pass !== '6952') return;
-                state = {
-                    phase: 'lobby',
-                    teams: [],
-                    round: 1,
-                    used: [],
-                    current: null,
-                    answering: null,
-                    tried: [],
-                    timerStart: null
-                };
+            const cmd = prompt('reset - úplný reset\nlobby - zpět do lobby');
+            if (cmd === 'reset') {
+                game = {started: false, teams: [], used: []};
                 myTeam = '';
-                localStorage.removeItem('inquiz_team');
+                localStorage.removeItem('myTeam');
                 save();
-            } 
-            else if (cmd === 'lobby') {
-                const pass = prompt('Heslo:');
-                if (pass !== '6952') return;
-                state.phase = 'lobby';
-                state.current = null;
+            } else if (cmd === 'lobby') {
+                game.started = false;
+                game.current = null;
                 save();
             }
-            else if (cmd === 'scores') {
-                const pass = prompt('Heslo:');
-                if (pass !== '6952') return;
-                const teamName = prompt('Název týmu:');
-                const team = state.teams.find(t => t.name.toLowerCase() === teamName.toLowerCase());
-                if (!team) return alert('Tým nenalezen!');
-                const newScore = prompt('Nové body:', team.score);
-                if (newScore !== null) {
-                    team.score = parseInt(newScore) || 0;
-                    save();
-                }
-            }
         }
 
-        // ===== ДЕКОРАЦИИ =====
-        function createGarland() {
-            const g = document.getElementById('garland');
-            for (let i = 0; i < 30; i++) {
-                g.innerHTML += '<div class="light"></div>';
-            }
-        }
-
-        function createSnowflakes() {
-            const s = document.getElementById('snowflakes');
-            const flakes = ['❄', '❅', '❆', '✻', '✼'];
-            for (let i = 0; i < 40; i++) {
-                const f = document.createElement('div');
-                f.className = 'snowflake';
-                f.innerHTML = flakes[Math.floor(Math.random() * flakes.length)];
-                f.style.left = Math.random() * 100 + '%';
-                f.style.animationDuration = (3 + Math.random() * 4) + 's';
-                f.style.animationDelay = Math.random() * 5 + 's';
-                f.style.fontSize = (8 + Math.random() * 12) + 'px';
-                s.appendChild(f);
-            }
-        }
-
-        // СТАРТ
-        init();
+        // Enter
+        document.getElementById('teamInput').addEventListener('keypress', e => {
+            if (e.key === 'Enter') addTeam();
+        });
+        document.getElementById('answerInput').addEventListener('keypress', e => {
+            if (e.key === 'Enter') submitAnswer();
+        });
     </script>
 </body>
 </html>
