@@ -648,6 +648,13 @@
                     box-shadow: 0 10px 30px rgba(239,68,68,0.4);">
                     🚀 НАЧАТЬ ИГРУ
                 </button>
+                <div style="margin-top: 20px;">
+                    <button onclick="clearAllTeams()" style="padding: 10px 30px; font-size: 0.9rem; 
+                        background: rgba(239,68,68,0.2); border: 2px solid #ef4444; border-radius: 25px; 
+                        color: #ef4444; font-weight: 600; cursor: pointer;">
+                        🗑️ Очистить все команды
+                    </button>
+                </div>
             </div>
         </div>
     </div>
@@ -876,6 +883,18 @@
             input.value = '';
             saveGame();
             renderTeamsList();
+        }
+
+        // Очистить все команды
+        function clearAllTeams() {
+            if (confirm('Удалить все команды из лобби?')) {
+                gameState.teams = [];
+                myTeamName = '';
+                myTeamIndex = null;
+                localStorage.removeItem('myTeamName');
+                saveGame();
+                renderTeamsList();
+            }
         }
 
         // Отрисовка списка команд в лобби
