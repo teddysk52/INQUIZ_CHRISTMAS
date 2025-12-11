@@ -496,9 +496,47 @@
         }
 
         /* Адаптивность */
-        @media (max-width: 900px) {
+        @media (max-width: 1200px) {
+            .container {
+                padding: 20px 10px;
+            }
+            
             .game-board {
-                grid-template-columns: repeat(2, 1fr);
+                gap: 5px;
+            }
+            
+            .category-header {
+                font-size: 0.7rem;
+                padding: 10px 5px;
+                min-height: 60px;
+            }
+            
+            .question-cell {
+                padding: 15px 10px;
+                font-size: 1.2rem;
+            }
+        }
+        
+        @media (max-width: 900px) {
+            .scoreboard {
+                gap: 8px;
+            }
+            
+            .team-score {
+                min-width: 100px;
+                padding: 10px 15px;
+            }
+            
+            .team-name {
+                font-size: 0.75rem;
+            }
+            
+            .team-points {
+                font-size: 1.4rem;
+            }
+            
+            .modal-content {
+                padding: 30px 20px;
             }
             
             .modal-question {
@@ -506,9 +544,40 @@
             }
             
             .buzz-button {
-                width: 150px;
-                height: 150px;
+                width: 120px;
+                height: 120px;
+                font-size: 1rem;
+            }
+            
+            .answer-input {
                 font-size: 1.2rem;
+                padding: 15px;
+            }
+        }
+        
+        @media (max-width: 600px) {
+            .game-board {
+                grid-template-columns: repeat(5, 1fr);
+                gap: 3px;
+            }
+            
+            .category-header {
+                font-size: 0.5rem;
+                padding: 5px 2px;
+                min-height: 50px;
+            }
+            
+            .question-cell {
+                padding: 10px 5px;
+                font-size: 0.9rem;
+            }
+            
+            .modal-points {
+                font-size: 2.5rem;
+            }
+            
+            .timer {
+                font-size: 2rem;
             }
         }
     </style>
@@ -843,11 +912,19 @@
             gameState.attemptedTeams = [];
             gameState.timeLeft = 20;
             
-            // Очищаем предыдущие попытки buzz
-            database.ref('sigame/buzzOrder').remove();
+            saveGame(); // Сохраняем сначала, чтобы все увидели
+            showQuestionModal();
+            startTimer();
+        }
+        
+        // Показать модальное окно с вопросом
+        function showQuestionModal() {
+            if (!gameState.currentQuestion) return;
             
-            document.getElementById('modalCategory').textContent = category;
-            document.getElementById('modalPoints').textContent = points;
+            const question = gameState.currentQuestion;
+            
+            document.getElementById('modalCategory').textContent = question.category;
+            document.getElementById('modalPoints').textContent = question.points;
             document.getElementById('modalQuestion').textContent = question.question;
             
             const img = document.getElementById('modalImage');
@@ -866,8 +943,6 @@
             document.getElementById('answerInput').value = '';
             
             document.getElementById('questionModal').classList.add('active');
-            startTimer();
-            saveGame();
         }
 
         // Таймер
@@ -1002,14 +1077,13 @@
         // Закрыть вопрос
         function closeQuestion() {
             markQuestionUsed();
-            document.getElementById('questionModal').classList.remove('active');
             stopTimer();
             gameState.currentQuestion = null;
             gameState.answeringTeam = null;
             gameState.attemptedTeams = [];
-            database.ref('sigame/buzzOrder').remove();
+            saveGame(); // Сохраняем чтобы все закрыли модалку
+            document.getElementById('questionModal').classList.remove('active');
             renderScoreboard();
-            saveGame();
         }
 
         // Пометить вопрос использованным
@@ -1103,6 +1177,14 @@
                 
                 renderScoreboard();
                 renderGameBoard();
+                
+                // Синхронизация модального окна
+                if (gameState.currentQuestion && !document.getElementById('questionModal').classList.contains('active')) {
+                    showQuestionModal();
+                } else if (!gameState.currentQuestion && document.getElementById('questionModal').classList.contains('active')) {
+                    document.getElementById('questionModal').classList.remove('active');
+                }
+                
                 updateUIForCurrentState();
                 setTimeout(() => {
                     isUpdatingFromFirebase = false;
