@@ -219,6 +219,7 @@
         .game-board {
             display: grid;
             grid-template-columns: repeat(5, 1fr);
+            grid-template-rows: auto repeat(5, 1fr);
             gap: 10px;
             margin-bottom: 30px;
         }
@@ -782,12 +783,22 @@
         // Отрисовка игрового поля
         function renderGameBoard() {
             const board = document.getElementById('gameBoard');
+            if (!board) return;
+            
             board.innerHTML = '';
             
             const currentRound = gameState.currentRound === 1 ? round1 : round2;
             const categories = Object.keys(currentRound);
+            const points = [200, 400, 600, 800, 1000];
             
-            // Заголовки
+            // Убедимся что usedQuestions - массив
+            if (!Array.isArray(gameState.usedQuestions)) {
+                gameState.usedQuestions = [];
+            }
+            
+            console.log('Rendering game board:', categories, points);
+            
+            // Создаем сетку: сначала заголовки
             categories.forEach(cat => {
                 const header = document.createElement('div');
                 header.className = 'category-header';
@@ -795,22 +806,25 @@
                 board.appendChild(header);
             });
             
-            // Вопросы
-            const points = [200, 400, 600, 800, 1000];
+            // Вопросы построчно (по рядам)
             points.forEach(point => {
                 categories.forEach(cat => {
                     const cell = document.createElement('div');
                     const questionId = `r${gameState.currentRound}-${cat}-${point}`;
-                    cell.className = `question-cell ${gameState.usedQuestions.includes(questionId) ? 'used' : ''}`;
+                    const isUsed = gameState.usedQuestions.includes(questionId);
+                    
+                    cell.className = `question-cell ${isUsed ? 'used' : ''}`;
                     cell.textContent = point;
                     
-                    if (!gameState.usedQuestions.includes(questionId)) {
+                    if (!isUsed) {
                         cell.onclick = () => openQuestion(cat, point);
                     }
                     
                     board.appendChild(cell);
                 });
             });
+            
+            console.log('Board children:', board.children.length);
         }
 
         // Открыть вопрос
@@ -894,27 +908,40 @@
         // Нажатие кнопки "Ответить"
         function buzzIn() {
             if (!gameState.currentQuestion || gameState.answeringTeam !== null) return;
+            
+            // Если команда не выбрана - спрашиваем
             if (myTeamIndex === null) {
-                alert('Сначала выберите свою команду через админ панель!');
+                const teamNum = prompt('Выберите вашу команду (0-4):');
+                if (teamNum !== null && teamNum >= '0' && teamNum <= '4') {
+                    myTeamIndex = parseInt(teamNum);
+                    localStorage.setItem('myTeamIndex', myTeamIndex);
+                } else {
+                    return;
+                }
+            }
+            
+            if (gameState.attemptedTeams && gameState.attemptedTeams.includes(myTeamIndex)) {
+                alert('Ваша команда уже пыталась ответить!');
                 return;
             }
-            if (gameState.attemptedTeams.includes(myTeamIndex)) {
-                return; // Уже пытались ответить
-            }
             
-            // Отправляем попытку с timestamp в Firebase
-            const buzzAttempt = {
-                teamIndex: myTeamIndex,
-                timestamp: Date.now()
-            };
+            // Устанавливаем отвечающую команду
+            gameState.answeringTeam = myTeamIndex;
+            if (!gameState.attemptedTeams) gameState.attemptedTeams = [];
+            gameState.attemptedTeams.push(myTeamIndex);
             
-            database.ref('sigame/buzzOrder').push(buzzAttempt);
+            // Обновляем UI
+            document.getElementById('buzzButton').classList.add('disabled');
+            document.getElementById('answeringTeamName').textContent = gameState.teams[gameState.answeringTeam].name;
+            document.getElementById('answerInputContainer').classList.add('active');
+            document.getElementById('answerInput').focus();
+            
+            renderScoreboard();
+            saveGame();
         }
 
         // Отправка ответа
         function submitAnswer() {
-            if (gameState.answeringTeam !== myTeamIndex) return; // Может отвечать только своя команда
-            
             const userAnswer = document.getElementById('answerInput').value.trim();
             if (!userAnswer) return;
             
@@ -944,16 +971,14 @@
                     document.getElementById('answerInputContainer').classList.remove('active');
                     gameState.answeringTeam = null;
                     document.getElementById('answerInput').value = '';
+                    document.getElementById('buzzButton').classList.remove('disabled');
                     saveGame();
                     renderScoreboard();
                     
                     // Проверяем, есть ли еще команды для ответа
-                    const remainingTeams = gameState.teams.length - gameState.attemptedTeams.length;
+                    const remainingTeams = gameState.teams.length - (gameState.attemptedTeams ? gameState.attemptedTeams.length : 0);
                     if (remainingTeams === 0) {
                         showCorrectAnswer();
-                    } else {
-                        // Разблокируем кнопку для других
-                        updateUIForCurrentState();
                     }
                 }, 1500);
             }
@@ -1066,7 +1091,16 @@
             const data = snapshot.val();
             if (data && !isUpdatingFromFirebase) {
                 isUpdatingFromFirebase = true;
-                gameState = data;
+                
+                // Мержим данные, не перезаписываем полностью
+                gameState.teams = data.teams || gameState.teams;
+                gameState.currentRound = data.currentRound || 1;
+                gameState.usedQuestions = data.usedQuestions || [];
+                gameState.currentQuestion = data.currentQuestion || null;
+                gameState.answeringTeam = data.answeringTeam !== undefined ? data.answeringTeam : null;
+                gameState.timeLeft = data.timeLeft || 20;
+                gameState.attemptedTeams = data.attemptedTeams || [];
+                
                 renderScoreboard();
                 renderGameBoard();
                 updateUIForCurrentState();
@@ -1160,8 +1194,16 @@
         }
         
         renderScoreboard();
-        showRoundIntro(1);
-        setTimeout(() => renderGameBoard(), 4000);
+        renderGameBoard(); // Сначала рендерим поле
+        
+        // Потом показываем заставку раунда
+        setTimeout(() => {
+            showRoundIntro(1);
+        }, 100);
+        
+        setTimeout(() => {
+            renderGameBoard(); // Еще раз после заставки
+        }, 4500);
     </script>
 </body>
 </html>
