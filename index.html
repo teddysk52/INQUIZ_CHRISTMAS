@@ -3,12 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>INQUIZ 🎄 Vánoční Speciál</title>
-    <link href="https://fonts.googleapis.com/css2?family=Mountains+of+Christmas:wght@700&family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
-    
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
-    
+    <title>🎄 INQUIZ 🎅</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <style>
         * {
             margin: 0;
@@ -16,16 +12,52 @@
             box-sizing: border-box;
         }
 
+        :root {
+            --christmas-red: #c41e3a;
+            --christmas-green: #165b33;
+            --christmas-blue: #00d4ff;
+            --christmas-white: #ffffff;
+            --dark-bg: #0a0e1a;
+            --glass-bg: rgba(255, 255, 255, 0.05);
+            --glass-border: rgba(255, 255, 255, 0.1);
+        }
+
         body {
-            font-family: 'Inter', sans-serif;
-            background: linear-gradient(180deg, #0f172a 0%, #1e293b 50%, #334155 100%);
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #0a0e1a 0%, #1a1a3e 25%, #0a0e1a 50%, #1a1a3e 75%, #0a0e1a 100%);
+            background-size: 400% 400%;
+            animation: gradientMove 20s ease infinite;
             min-height: 100vh;
-            color: #fff;
+            color: var(--christmas-white);
             overflow-x: hidden;
             position: relative;
         }
 
-        /* СНЕЖИНКИ */
+        @keyframes gradientMove {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: 
+                radial-gradient(circle at 20% 80%, rgba(196, 30, 58, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(22, 91, 51, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 50% 50%, rgba(255, 215, 0, 0.08) 0%, transparent 50%);
+            animation: bgRotate 30s linear infinite;
+            z-index: 0;
+        }
+
+        @keyframes bgRotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
         .snowflakes {
             position: fixed;
             top: 0;
@@ -33,1074 +65,609 @@
             width: 100%;
             height: 100%;
             pointer-events: none;
-            z-index: 9998;
+            z-index: 100;
+            overflow: hidden;
         }
 
         .snowflake {
             position: absolute;
             top: -20px;
-            color: #fff;
+            color: var(--christmas-white);
             font-size: 1rem;
             animation: fall linear infinite;
             opacity: 0.8;
-            text-shadow: 0 0 5px rgba(255,255,255,0.5);
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
         }
 
         @keyframes fall {
-            0% { transform: translateY(-20px) rotate(0deg); }
-            100% { transform: translateY(100vh) rotate(360deg); }
+            0% { 
+                transform: translateY(-20px) translateX(0) rotate(0deg); 
+                opacity: 0; 
+            }
+            10% { opacity: 0.8; }
+            90% { opacity: 0.8; }
+            100% { 
+                transform: translateY(100vh) translateX(100px) rotate(360deg); 
+                opacity: 0; 
+            }
         }
 
-        /* ГИРЛЯНДА */
-        .garland {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 30px;
-            display: flex;
-            justify-content: space-around;
-            z-index: 9999;
-            background: linear-gradient(180deg, rgba(15,23,42,0.9) 0%, transparent 100%);
-        }
-
-        .light {
-            width: 15px;
-            height: 20px;
-            border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
-            animation: glow 1.5s infinite;
-        }
-
-        @keyframes glow {
-            0%, 100% { opacity: 1; filter: brightness(1.8) drop-shadow(0 0 10px currentColor); }
-            50% { opacity: 0.5; }
-        }
-
-        .light:nth-child(6n+1) { background: #ef4444; color: #ef4444; animation-delay: 0s; }
-        .light:nth-child(6n+2) { background: #22c55e; color: #22c55e; animation-delay: 0.25s; }
-        .light:nth-child(6n+3) { background: #fbbf24; color: #fbbf24; animation-delay: 0.5s; }
-        .light:nth-child(6n+4) { background: #3b82f6; color: #3b82f6; animation-delay: 0.75s; }
-        .light:nth-child(6n+5) { background: #a855f7; color: #a855f7; animation-delay: 1s; }
-        .light:nth-child(6n) { background: #ec4899; color: #ec4899; animation-delay: 1.25s; }
-
-        /* ДЕД МОРОЗ НА САНЯХ */
-        .santa {
-            position: fixed;
-            top: 15%;
-            left: -200px;
-            font-size: 3rem;
-            z-index: 9997;
-            animation: santaFly 20s linear infinite;
-        }
-
-        @keyframes santaFly {
-            0% { left: -200px; }
-            100% { left: 110%; }
-        }
-
-        /* КОНТЕЙНЕР */
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 50px 20px 20px;
-            position: relative;
-            z-index: 1;
-        }
-
-        h1 {
-            text-align: center;
-            font-family: 'Mountains of Christmas', cursive;
-            font-size: 4rem;
-            color: #ffd700;
-            margin-bottom: 10px;
-            text-shadow: 0 0 20px rgba(255,215,0,0.5), 0 0 40px rgba(255,215,0,0.3);
-            animation: titleGlow 2s ease-in-out infinite;
-        }
-
-        @keyframes titleGlow {
-            0%, 100% { text-shadow: 0 0 20px rgba(255,215,0,0.5), 0 0 40px rgba(255,215,0,0.3); }
-            50% { text-shadow: 0 0 30px rgba(255,215,0,0.8), 0 0 60px rgba(255,215,0,0.5); }
-        }
-
-        h2 {
-            text-align: center;
-            font-size: 1.5rem;
-            color: rgba(255,255,255,0.8);
-            margin-bottom: 40px;
-        }
-
-        /* ЛОББИ */
-        #lobby {
-            text-align: center;
-            padding: 20px;
-        }
-
-        .input-field {
-            padding: 18px 25px;
-            font-size: 1.3rem;
-            border: 3px solid #ffd700;
-            border-radius: 15px;
-            background: rgba(255,255,255,0.1);
-            backdrop-filter: blur(10px);
-            color: #fff;
-            width: 100%;
-            max-width: 400px;
-            margin: 10px;
-            font-weight: 600;
-            text-align: center;
-            transition: all 0.3s;
-        }
-
-        .input-field:focus {
-            outline: none;
-            border-color: #22c55e;
-            box-shadow: 0 0 20px rgba(34,197,94,0.5);
-        }
-
-        .input-field::placeholder {
-            color: rgba(255,255,255,0.5);
-        }
-
-        .btn {
-            padding: 18px 50px;
-            font-size: 1.3rem;
-            font-weight: 700;
-            border: none;
-            border-radius: 50px;
-            cursor: pointer;
-            margin: 10px;
-            transition: all 0.3s;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        .btn-green {
-            background: linear-gradient(135deg, #22c55e, #16a34a);
-            color: #fff;
-            box-shadow: 0 10px 30px rgba(34,197,94,0.4);
-        }
-
-        .btn-green:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 15px 40px rgba(34,197,94,0.6);
-        }
-
-        .btn-red {
-            background: linear-gradient(135deg, #ef4444, #dc2626);
-            color: #fff;
-            border: 3px solid #ffd700;
-            box-shadow: 0 10px 30px rgba(239,68,68,0.4);
-        }
-
-        .btn-red:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 15px 40px rgba(239,68,68,0.6);
-        }
-
-        .btn-gray {
-            background: rgba(255,255,255,0.1);
-            color: #fff;
-            border: 2px solid rgba(255,255,255,0.3);
-        }
-
-        .btn-gray:hover {
-            background: rgba(255,255,255,0.2);
-            transform: translateY(-2px);
-        }
-
-        .teams-list {
-            margin: 30px auto;
-            max-width: 600px;
-        }
-
-        .teams-title {
-            font-size: 1.3rem;
-            color: rgba(255,255,255,0.7);
-            margin-bottom: 20px;
-        }
-
-        .team-item {
-            padding: 18px 30px;
-            margin: 12px 0;
-            background: linear-gradient(135deg, rgba(255,255,255,0.15), rgba(255,255,255,0.05));
-            border: 2px solid rgba(255,255,255,0.3);
-            border-radius: 15px;
-            font-size: 1.3rem;
-            font-weight: 600;
-            color: #ffd700;
-            backdrop-filter: blur(10px);
-            transition: all 0.3s;
-        }
-
-        .team-item:hover {
-            transform: translateX(5px);
-            border-color: #ffd700;
-        }
-
-        /* ИГРА */
-        #game {
-            display: none;
-        }
-
-        .scoreboard {
-            display: flex;
-            justify-content: center;
-            gap: 15px;
-            margin-bottom: 30px;
-            flex-wrap: wrap;
-        }
-
-        .team-card {
-            background: linear-gradient(135deg, rgba(255,255,255,0.15), rgba(255,255,255,0.05));
-            border: 3px solid rgba(255,255,255,0.3);
-            border-radius: 20px;
-            padding: 20px 30px;
-            min-width: 160px;
-            text-align: center;
-            backdrop-filter: blur(10px);
-            transition: all 0.3s;
-        }
-
-        .team-card.active {
-            border-color: #3b82f6;
-            background: linear-gradient(135deg, rgba(59,130,246,0.3), rgba(59,130,246,0.1));
-            box-shadow: 0 0 40px rgba(59,130,246,0.6);
-            transform: scale(1.05);
-        }
-
-        .team-card.answering {
-            border-color: #22c55e;
-            background: linear-gradient(135deg, rgba(34,197,94,0.3), rgba(34,197,94,0.1));
-            animation: pulse 0.6s infinite;
-        }
-
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); box-shadow: 0 0 30px rgba(34,197,94,0.5); }
-            50% { transform: scale(1.08); box-shadow: 0 0 50px rgba(34,197,94,0.8); }
-        }
-
-        .team-name {
-            font-size: 1rem;
-            color: rgba(255,255,255,0.8);
-            margin-bottom: 8px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        .team-score {
-            font-size: 2.5rem;
-            font-weight: 900;
-            color: #ffd700;
-            text-shadow: 0 0 15px rgba(255,215,0,0.5);
-        }
-
-        .info-banner {
-            text-align: center;
-            padding: 20px;
-            background: linear-gradient(135deg, rgba(59,130,246,0.3), rgba(59,130,246,0.1));
-            border: 3px solid #3b82f6;
-            border-radius: 20px;
-            margin-bottom: 25px;
-            font-size: 1.4rem;
-            font-weight: 700;
-            color: #60a5fa;
-            backdrop-filter: blur(10px);
-            box-shadow: 0 10px 40px rgba(59,130,246,0.3);
-        }
-
-        .info-banner strong {
-            color: #ffd700;
-            font-size: 1.6rem;
-        }
-
-        .board {
-            display: grid;
-            grid-template-columns: repeat(5, 1fr);
-            gap: 12px;
-        }
-
-        .category {
-            background: linear-gradient(135deg, #dc2626, #991b1b);
-            padding: 20px 10px;
-            text-align: center;
-            border-radius: 15px;
-            font-weight: 700;
-            font-size: 0.9rem;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            min-height: 90px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 5px 20px rgba(220,38,38,0.4);
-            border: 2px solid rgba(255,255,255,0.2);
-        }
-
-        .cell {
-            background: linear-gradient(135deg, #16a34a, #15803d);
-            border: 3px solid rgba(255,255,255,0.2);
-            padding: 35px;
-            text-align: center;
-            border-radius: 15px;
-            font-weight: 900;
-            font-size: 2rem;
-            color: #ffd700;
-            cursor: pointer;
-            transition: all 0.3s;
-            box-shadow: 0 5px 20px rgba(22,163,74,0.4);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .cell::before {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 0;
-            height: 0;
-            background: rgba(255,255,255,0.3);
-            border-radius: 50%;
-            transform: translate(-50%, -50%);
-            transition: width 0.4s, height 0.4s;
-        }
-
-        .cell:hover:not(.used)::before {
-            width: 200%;
-            height: 200%;
-        }
-
-        .cell:hover:not(.used) {
-            transform: scale(1.08) rotate(2deg);
-            border-color: #ffd700;
-            box-shadow: 0 10px 40px rgba(255,215,0,0.6);
-        }
-
-        .cell.used {
-            background: linear-gradient(135deg, rgba(50,50,50,0.6), rgba(30,30,30,0.6));
-            color: rgba(255,255,255,0.2);
-            cursor: not-allowed;
-            border-color: rgba(255,255,255,0.1);
-            box-shadow: none;
-        }
-
-        /* МОДАЛКА */
-        #modal {
-            display: none;
+        /* Christmas decorations */
+        .christmas-decorations {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0,0,0,0.95);
-            z-index: 10000;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
+            pointer-events: none;
+            z-index: 1;
+            overflow: hidden;
         }
 
-        #modal.show {
-            display: flex;
-        }
-
-        .modal-box {
-            background: linear-gradient(135deg, #1e293b, #0f172a);
-            border: 4px solid rgba(255,215,0,0.4);
-            border-radius: 30px;
-            padding: 50px;
-            max-width: 900px;
-            width: 100%;
-            text-align: center;
-            position: relative;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.8);
-            backdrop-filter: blur(20px);
-        }
-
-        .close-btn {
+        .decoration {
             position: absolute;
-            top: 20px;
-            right: 20px;
-            width: 60px;
-            height: 60px;
-            background: rgba(255,255,255,0.1);
-            border: 3px solid rgba(255,255,255,0.3);
-            border-radius: 50%;
-            color: #fff;
-            font-size: 2rem;
-            cursor: pointer;
+            font-size: 3rem;
+            opacity: 0.15;
+            animation: floatDecor 15s ease-in-out infinite;
+        }
+
+        .decoration:nth-child(1) { top: 10%; left: 5%; animation-delay: 0s; font-size: 4rem; }
+        .decoration:nth-child(2) { top: 20%; right: 8%; animation-delay: 2s; font-size: 3.5rem; }
+        .decoration:nth-child(3) { top: 60%; left: 3%; animation-delay: 4s; font-size: 3rem; }
+        .decoration:nth-child(4) { top: 70%; right: 5%; animation-delay: 6s; font-size: 4.5rem; }
+        .decoration:nth-child(5) { top: 40%; left: 2%; animation-delay: 8s; font-size: 2.5rem; }
+        .decoration:nth-child(6) { top: 85%; right: 10%; animation-delay: 10s; font-size: 3rem; }
+        .decoration:nth-child(7) { top: 5%; left: 15%; animation-delay: 1s; font-size: 2rem; }
+        .decoration:nth-child(8) { top: 50%; right: 3%; animation-delay: 3s; font-size: 3.5rem; }
+
+        @keyframes floatDecor {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            25% { transform: translateY(-20px) rotate(5deg); }
+            50% { transform: translateY(0) rotate(0deg); }
+            75% { transform: translateY(20px) rotate(-5deg); }
+        }
+
+        /* Corner decorations */
+        .corner-decor {
+            position: fixed;
+            font-size: 6rem;
+            opacity: 0.1;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        .corner-decor.top-left { top: 50px; left: 20px; }
+        .corner-decor.top-right { top: 50px; right: 20px; }
+        .corner-decor.bottom-left { bottom: 20px; left: 20px; }
+        .corner-decor.bottom-right { bottom: 20px; right: 20px; }
+
+        /* Twinkling stars */
+        .stars {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .star {
+            position: absolute;
+            font-size: 1.5rem;
+            color: gold;
+            opacity: 0;
+            animation: twinkle 3s ease-in-out infinite;
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0; transform: scale(0.8); }
+            50% { opacity: 0.6; transform: scale(1.2); }
+        }
+
+        .garland {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 40px;
             display: flex;
+            justify-content: space-around;
             align-items: center;
-            justify-content: center;
-            transition: all 0.3s;
+            z-index: 999;
+            background: linear-gradient(180deg, rgba(10, 14, 26, 0.95) 0%, transparent 100%);
+            padding: 0 20px;
         }
 
-        .close-btn:hover {
-            background: rgba(239,68,68,0.3);
-            border-color: #ef4444;
-            transform: rotate(90deg);
+        .light {
+            width: 18px;
+            height: 24px;
+            border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+            animation: glow 1.5s infinite ease-in-out;
+            box-shadow: 0 0 20px currentColor;
         }
 
-        .modal-pts {
-            font-size: 5rem;
-            font-weight: 900;
-            color: #ffd700;
-            margin-bottom: 25px;
-            text-shadow: 0 0 30px rgba(255,215,0,0.6);
+        @keyframes glow {
+            0%, 100% { 
+                opacity: 1; 
+                filter: brightness(1.5);
+                transform: scale(1);
+            }
+            50% { 
+                opacity: 0.6;
+                transform: scale(0.95);
+            }
         }
 
-        .timer {
-            font-size: 4rem;
-            font-weight: 900;
-            color: #4ade80;
-            margin-bottom: 25px;
-            text-shadow: 0 0 20px rgba(74,222,128,0.5);
-        }
+        .light:nth-child(6n+1) { background: #ff3366; color: #ff3366; animation-delay: 0s; }
+        .light:nth-child(6n+2) { background: #33ff88; color: #33ff88; animation-delay: 0.25s; }
+        .light:nth-child(6n+3) { background: #ffdd33; color: #ffdd33; animation-delay: 0.5s; }
+        .light:nth-child(6n+4) { background: #3388ff; color: #3388ff; animation-delay: 0.75s; }
+        .light:nth-child(6n+5) { background: #ff33dd; color: #ff33dd; animation-delay: 1s; }
+        .light:nth-child(6n+6) { background: #33ddff; color: #33ddff; animation-delay: 1.25s; }
 
-        .timer.warning { 
-            color: #fbbf24; 
-            text-shadow: 0 0 20px rgba(251,191,36,0.5);
-        }
-        
-        .timer.danger { 
-            color: #ef4444; 
-            text-shadow: 0 0 20px rgba(239,68,68,0.5);
-            animation: blink 0.5s infinite; 
-        }
-
-        @keyframes blink {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.4; }
-        }
-
-        .question {
-            font-size: 2rem;
-            margin-bottom: 35px;
-            line-height: 1.6;
-            color: #e2e8f0;
-        }
-
-        .buzz-btn {
-            width: 200px;
-            height: 200px;
-            background: linear-gradient(135deg, #ef4444, #dc2626);
-            border: 6px solid #ffd700;
-            border-radius: 50%;
-            font-size: 1.4rem;
-            font-weight: 900;
-            color: #fff;
-            cursor: pointer;
-            margin: 25px auto;
+        .container {
+            position: relative;
+            z-index: 10;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 80px 20px 40px;
+            min-height: 100vh;
             display: flex;
-            align-items: center;
-            justify-content: center;
             flex-direction: column;
-            box-shadow: 0 15px 50px rgba(239,68,68,0.5);
-            transition: all 0.3s;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .main-title {
+            font-size: clamp(2.5rem, 8vw, 5rem);
+            font-weight: 900;
+            text-align: center;
+            margin-bottom: 15px;
+            background: linear-gradient(135deg, var(--christmas-red), var(--christmas-blue), var(--christmas-green), var(--christmas-blue), var(--christmas-red));
+            background-size: 300% 300%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: gradientFlow 4s ease infinite;
+            filter: drop-shadow(0 0 30px rgba(255, 215, 0, 0.4));
+            letter-spacing: 2px;
+            line-height: 1.2;
+        }
+
+        @keyframes gradientFlow {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        .subtitle {
+            font-size: clamp(1rem, 3vw, 1.3rem);
+            text-align: center;
+            margin-bottom: 50px;
+            color: rgba(255, 255, 255, 0.7);
+            font-weight: 400;
+            line-height: 1.5;
+        }
+
+        .setup-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 2px solid var(--glass-border);
+            border-radius: 30px;
+            padding: clamp(25px, 5vw, 50px);
+            width: 100%;
+            max-width: 700px;
+            box-shadow: 
+                0 8px 32px 0 rgba(0, 0, 0, 0.37),
+                inset 0 0 0 1px rgba(255, 255, 255, 0.05);
+            animation: cardFloat 6s ease-in-out infinite;
+        }
+
+        @keyframes cardFloat {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .form-group {
+            margin-bottom: clamp(20px, 4vw, 35px);
+        }
+
+        .form-label {
+            display: block;
+            font-size: clamp(0.95rem, 2.5vw, 1.1rem);
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: var(--christmas-blue);
+            text-shadow: 0 0 20px rgba(255, 215, 0, 0.3);
+        }
+
+        .form-input {
+            width: 100%;
+            padding: clamp(12px, 2.5vw, 18px) clamp(15px, 3vw, 25px);
+            font-size: clamp(0.9rem, 2.5vw, 1.1rem);
+            background: rgba(255, 255, 255, 0.08);
+            border: 2px solid rgba(255, 255, 255, 0.15);
+            border-radius: 15px;
+            color: var(--christmas-white);
+            font-family: 'Poppins', sans-serif;
+            transition: all 0.3s ease;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--christmas-blue);
+            background: rgba(255, 255, 255, 0.12);
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.2);
+        }
+
+        .form-input::placeholder {
+            color: rgba(255, 255, 255, 0.4);
+        }
+
+        .teams-list {
+            margin-top: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .team-input-row {
+            display: flex;
+            gap: 12px;
+            align-items: stretch;
+        }
+
+        .team-input {
+            flex: 1;
+            padding: clamp(10px, 2vw, 15px) clamp(12px, 2.5vw, 20px);
+            font-size: clamp(0.85rem, 2vw, 1rem);
+            background: rgba(255, 255, 255, 0.06);
+            border: 2px solid rgba(255, 255, 255, 0.12);
+            border-radius: 12px;
+            color: var(--christmas-white);
+            font-family: 'Poppins', sans-serif;
+            transition: all 0.3s ease;
+        }
+
+        .team-input:focus {
+            outline: none;
+            border-color: var(--christmas-green);
+            box-shadow: 0 0 15px rgba(22, 91, 51, 0.3);
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .remove-team-btn {
+            min-width: 45px;
+            width: 45px;
+            height: auto;
+            background: rgba(196, 30, 58, 0.2);
+            border: 2px solid rgba(196, 30, 58, 0.4);
+            border-radius: 12px;
+            color: var(--christmas-red);
+            font-size: 1.3rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .remove-team-btn:hover {
+            background: rgba(196, 30, 58, 0.4);
+            transform: rotate(90deg) scale(1.05);
+            box-shadow: 0 0 15px rgba(196, 30, 58, 0.5);
+        }
+
+        .add-team-btn {
+            width: 100%;
+            padding: clamp(12px, 2.5vw, 15px);
+            background: rgba(22, 91, 51, 0.2);
+            border: 2px dashed rgba(22, 91, 51, 0.5);
+            border-radius: 12px;
+            color: var(--christmas-green);
+            font-size: clamp(0.85rem, 2vw, 1rem);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+        }
+
+        .add-team-btn:hover {
+            background: rgba(22, 91, 51, 0.35);
+            border-style: solid;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(22, 91, 51, 0.3);
+        }
+
+        .start-btn {
+            width: 100%;
+            padding: clamp(18px, 3vw, 25px);
+            font-size: clamp(1.1rem, 3vw, 1.5rem);
+            font-weight: 900;
+            background: linear-gradient(135deg, var(--christmas-red), #ff4d6a, var(--christmas-red));
+            background-size: 200% 200%;
+            border: none;
+            border-radius: 20px;
+            color: var(--christmas-white);
+            cursor: pointer;
+            transition: all 0.4s ease;
+            box-shadow: 0 10px 30px rgba(196, 30, 58, 0.4);
             text-transform: uppercase;
             letter-spacing: 2px;
+            margin-top: clamp(20px, 4vw, 30px);
+            animation: buttonPulse 2s ease-in-out infinite;
         }
 
-        .buzz-btn:hover:not(.disabled) {
-            transform: scale(1.12);
-            box-shadow: 0 20px 60px rgba(239,68,68,0.7);
+        @keyframes buttonPulse {
+            0%, 100% { box-shadow: 0 10px 30px rgba(196, 30, 58, 0.4); }
+            50% { box-shadow: 0 15px 40px rgba(196, 30, 58, 0.6); }
         }
 
-        .buzz-btn:active:not(.disabled) {
-            transform: scale(1.05);
+        .start-btn:hover {
+            background-position: 100% 50%;
+            transform: translateY(-5px);
+            box-shadow: 0 15px 50px rgba(196, 30, 58, 0.6);
         }
 
-        .buzz-btn.disabled {
-            background: linear-gradient(135deg, rgba(100,100,100,0.5), rgba(70,70,70,0.5));
-            border-color: rgba(255,255,255,0.2);
-            cursor: not-allowed;
-            box-shadow: none;
+        .start-btn:active {
+            transform: translateY(-2px);
         }
 
-        .answer-input {
-            width: 100%;
-            max-width: 550px;
-            padding: 22px 30px;
-            font-size: 1.6rem;
-            text-align: center;
-            background: rgba(255,255,255,0.1);
-            border: 4px solid #ffd700;
-            border-radius: 20px;
-            color: #fff;
-            margin-bottom: 20px;
-            font-weight: 600;
-            backdrop-filter: blur(10px);
-        }
-
-        .answer-input:focus {
-            outline: none;
-            border-color: #22c55e;
-            box-shadow: 0 0 30px rgba(34,197,94,0.5);
-        }
-
-        .result {
-            font-size: 2.5rem;
-            font-weight: 900;
-            padding: 25px;
-            border-radius: 20px;
-            margin: 25px 0;
-        }
-
-        .result.correct {
-            background: rgba(34,197,94,0.3);
-            border: 4px solid #22c55e;
-            color: #22c55e;
-            text-shadow: 0 0 20px rgba(34,197,94,0.5);
-        }
-
-        .result.wrong {
-            background: rgba(239,68,68,0.3);
-            border: 4px solid #ef4444;
-            color: #ef4444;
-            text-shadow: 0 0 20px rgba(239,68,68,0.5);
-        }
-
-        .hidden { display: none !important; }
-
-        .admin-btn {
+        .decoration-left,
+        .decoration-right {
             position: fixed;
-            bottom: 25px;
-            right: 25px;
-            width: 70px;
-            height: 70px;
-            background: rgba(255,255,255,0.1);
-            border: 3px solid rgba(255,255,255,0.3);
-            border-radius: 50%;
-            color: #fff;
-            font-size: 2rem;
-            cursor: pointer;
-            z-index: 9996;
-            backdrop-filter: blur(10px);
-            transition: all 0.3s;
+            font-size: clamp(5rem, 15vw, 12rem);
+            opacity: 0.05;
+            z-index: 1;
+            animation: decorFloat 8s ease-in-out infinite;
+            pointer-events: none;
         }
 
-        .admin-btn:hover {
-            background: rgba(255,255,255,0.2);
-            transform: rotate(180deg);
+        .decoration-left {
+            bottom: 5%;
+            left: 2%;
+            animation-delay: 0s;
+        }
+
+        .decoration-right {
+            top: 10%;
+            right: 2%;
+            animation-delay: 4s;
+        }
+
+        @keyframes decorFloat {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(5deg); }
+        }
+
+        .rounds-info {
+            margin-top: 20px;
+            padding: 15px;
+            background: rgba(0, 212, 255, 0.1);
+            border: 2px solid rgba(0, 212, 255, 0.3);
+            border-radius: 15px;
+            text-align: center;
+        }
+
+        .rounds-info h3 {
+            color: var(--christmas-blue);
+            margin-bottom: 10px;
+        }
+
+        .rounds-info p {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.9rem;
         }
 
         @media (max-width: 768px) {
-            h1 { font-size: 2.5rem; }
-            h2 { font-size: 1.2rem; }
-            .board { gap: 6px; }
-            .category { font-size: 0.7rem; padding: 12px 6px; min-height: 70px; }
-            .cell { padding: 20px; font-size: 1.4rem; }
-            .modal-box { padding: 35px 20px; }
-            .modal-pts { font-size: 3.5rem; }
-            .timer { font-size: 3rem; }
-            .question { font-size: 1.4rem; }
-            .buzz-btn { width: 160px; height: 160px; font-size: 1.1rem; }
-            .team-card { min-width: 130px; padding: 15px 20px; }
-            .team-score { font-size: 2rem; }
+            .container {
+                padding: 60px 15px 30px;
+            }
+
+            .setup-card {
+                border-radius: 20px;
+            }
+
+            .team-input-row {
+                gap: 10px;
+            }
+
+            .remove-team-btn {
+                min-width: 40px;
+                width: 40px;
+            }
+
+            .garland {
+                height: 35px;
+            }
+
+            .light {
+                width: 14px;
+                height: 20px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .main-title {
+                letter-spacing: 1px;
+            }
+
+            .setup-card {
+                padding: 20px 15px;
+            }
+
+            .form-group {
+                margin-bottom: 20px;
+            }
         }
     </style>
 </head>
 <body>
-    <!-- Дед Мороз -->
-    <div class="santa">🎅🛷</div>
+    <div class="garland">
+        <div class="light"></div><div class="light"></div><div class="light"></div><div class="light"></div><div class="light"></div><div class="light"></div>
+        <div class="light"></div><div class="light"></div><div class="light"></div><div class="light"></div><div class="light"></div><div class="light"></div>
+        <div class="light"></div><div class="light"></div><div class="light"></div><div class="light"></div><div class="light"></div><div class="light"></div>
+        <div class="light"></div><div class="light"></div><div class="light"></div><div class="light"></div><div class="light"></div><div class="light"></div>
+        <div class="light"></div><div class="light"></div><div class="light"></div><div class="light"></div><div class="light"></div><div class="light"></div>
+    </div>
 
-    <!-- Гирлянда -->
-    <div class="garland" id="garland"></div>
-    
-    <!-- Снежинки -->
     <div class="snowflakes" id="snowflakes"></div>
 
-    <!-- Админ -->
-    <button class="admin-btn" onclick="adminReset()">⚙️</button>
-
-    <!-- ЛОББИ -->
-    <div id="lobby" class="container">
-        <h1>🎄 INQUIZ 🎄</h1>
-        <h2>Vánoční Speciál ❄️</h2>
-        
-        <input type="text" id="teamInput" class="input-field" placeholder="Název týmu..." maxlength="20">
-        <br>
-        <button class="btn btn-green" onclick="addTeam()">➕ Přidat tým</button>
-        
-        <div class="teams-list">
-            <div class="teams-title">Týmy v lobby:</div>
-            <div id="teamsList"></div>
-        </div>
-        
-        <input type="password" id="passInput" class="input-field" placeholder="Heslo: 6952" maxlength="4" style="width: 250px; letter-spacing: 5px;">
-        <br>
-        <button class="btn btn-red" onclick="startGame()">🚀 ZAČÍT HRU</button>
-        <br>
-        <button class="btn btn-gray" onclick="clearAll()">🗑️ Vymazat vše</button>
+    <!-- Christmas decorations -->
+    <div class="christmas-decorations">
+        <div class="decoration">🎄</div>
+        <div class="decoration">🎁</div>
+        <div class="decoration">⭐</div>
+        <div class="decoration">🦌</div>
+        <div class="decoration">🔔</div>
+        <div class="decoration">🎅</div>
+        <div class="decoration">🍪</div>
+        <div class="decoration">🎀</div>
     </div>
 
-    <!-- ИГРА -->
-    <div id="game" class="container">
-        <h1>🎄 INQUIZ 🎄</h1>
-        
-        <div id="infoBanner" class="info-banner"></div>
-        <div id="scoreboard" class="scoreboard"></div>
-        <div id="board" class="board"></div>
-    </div>
+    <!-- Corner decorations -->
+    <div class="corner-decor top-left">🎄</div>
+    <div class="corner-decor top-right">⭐</div>
+    <div class="corner-decor bottom-left">🎁</div>
+    <div class="corner-decor bottom-right">☃️</div>
 
-    <!-- МОДАЛКА -->
-    <div id="modal">
-        <div class="modal-box">
-            <div class="close-btn" onclick="closeQuestion()">✕</div>
-            <div class="modal-pts" id="modalPts"></div>
-            <div class="timer" id="timer">20</div>
-            <div class="question" id="question"></div>
-            
-            <div id="answeringInfo" class="hidden" style="font-size: 1.4rem; color: rgba(255,255,255,0.8); margin-bottom: 20px;">
-                Odpovídá: <strong id="answeringTeam" style="color: #ffd700; font-size: 1.6rem;"></strong>
+    <!-- Twinkling stars -->
+    <div class="stars" id="stars"></div>
+
+    <div class="decoration-left">🎄</div>
+    <div class="decoration-right">⛄</div>
+
+    <div class="container">
+        <h1 class="main-title">🎄 INQUIZ 🎅</h1>
+
+        <div class="setup-card">
+            <div class="form-group">
+                <label class="form-label">⏱️ Čas na odpověď (sekundy)</label>
+                <input type="number" class="form-input" id="timeLimit" value="30" min="10" max="120">
             </div>
-            
-            <button class="buzz-btn" id="buzzBtn" onclick="buzzClick()">
-                🔔<br>ODPOVĚDĚT
-            </button>
-            
-            <div id="answerSection" class="hidden">
-                <input type="text" id="answerInput" class="answer-input" placeholder="Vaše odpověď...">
-                <br>
-                <button class="btn btn-green" onclick="submitAnswer()">Odeslat odpověď</button>
+
+            <div class="form-group">
+                <label class="form-label">👥 Týmy</label>
+                <div class="teams-list" id="teamsList">
+                    <div class="team-input-row">
+                        <input type="text" class="team-input" placeholder="Název týmu 1" value="Tým 1">
+                        <button class="remove-team-btn" onclick="removeTeam(this)" title="Odstranit tým">✕</button>
+                    </div>
+                    <div class="team-input-row">
+                        <input type="text" class="team-input" placeholder="Název týmu 2" value="Tým 2">
+                        <button class="remove-team-btn" onclick="removeTeam(this)" title="Odstranit tým">✕</button>
+                    </div>
+                    <div class="team-input-row">
+                        <input type="text" class="team-input" placeholder="Název týmu 3" value="Tým 3">
+                        <button class="remove-team-btn" onclick="removeTeam(this)" title="Odstranit tým">✕</button>
+                    </div>
+                </div>
+                <button class="add-team-btn" onclick="addTeam()">+ Přidat tým</button>
             </div>
-            
-            <div id="result" class="result hidden"></div>
-            <div id="correctAnswer" class="hidden" style="margin-top: 25px; padding: 20px; background: rgba(74,222,128,0.2); border: 3px solid #4ade80; border-radius: 15px; color: #4ade80; font-size: 1.4rem; font-weight: 700;"></div>
+
+            <button class="start-btn" onclick="startGame()">🚀 ZAČÍT HRU</button>
         </div>
     </div>
 
     <script>
-        // Firebase
-        const firebaseConfig = {
-            apiKey: "AIzaSyDwo2GKOXEDDs31kRfFCQLy_TcXRC2DF0",
-            authDomain: "inquiz-a82e2.firebaseapp.com",
-            databaseURL: "https://inquiz-a82e2-default-rtdb.europe-west1.firebasedatabase.app",
-            projectId: "inquiz-a82e2",
-            storageBucket: "inquiz-a82e2.firebasestorage.app",
-            messagingSenderId: "943129879818",
-            appId: "1:943129879818:web:366e32fe072182cd0d86f3"
-        };
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.database().ref('game4');
-
-        // КРУТЫЕ ВОПРОСЫ
-        const Q = {
-            1: {
-                "TikTok & Trendy 🔥": [
-                    {q: "Které zvíře se stalo symbolem 'Skibidi'?", a: ["záchod", "toilet", "wc"]},
-                    {q: "Co znamená 'rizz'?", a: ["charisma", "charizmatický", "přitažlivost"]},
-                    {q: "Kdo je populární streamer s maskami?", a: ["dream"]},
-                    {q: "Trend kde stojíš jako socha?", a: ["mannequin challenge"]},
-                    {q: "Aplikace s 60s videi?", a: ["tiktok"]}
-                ],
-                "Gaming Legends 🎮": [
-                    {q: "Survival hra s červenými a žlutými dřevy?", a: ["minecraft"]},
-                    {q: "Battle royale kde stavíš?", a: ["fortnite"]},
-                    {q: "Hra kde jsi Among Us?", a: ["among us", "impostor"]},
-                    {q: "Nejpopulárnější FPS s AK-47?", a: ["cs", "csgo", "cs2", "counter-strike"]},
-                    {q: "Hra s Creepery a TNT?", a: ["minecraft"]}
-                ],
-                "Sigma Males 💪": [
-                    {q: "Co je 'sigma grindset'?", a: ["mindset", "způsob života", "mentalita"]},
-                    {q: "Fitness influencer 'Liver King'?", a: ["brian johnson", "liver king"]},
-                    {q: "Meme 'Can you feel my...'?", a: ["heart"]},
-                    {q: "Co znamená 'mewing'?", a: ["čelist", "tongue posture", "jazyk"]},
-                    {q: "Famous citát: 'It's about...'?", a: ["drive", "power"]}
-                ],
-                "Meme Culture 😂": [
-                    {q: "Pes meme 'wow such...'?", a: ["doge", "shiba"]},
-                    {q: "Žába která křičí 'AAAAA'?", a: ["pepe"]},
-                    {q: "Meme s hudbou Rick Astley?", a: ["rickroll", "never gonna give you up"]},
-                    {q: "Bílá kočka co křičí na ženu?", a: ["woman yelling at cat"]},
-                    {q: "SpongeBob když je...'?", a: ["mocking", "sarcastic"]}
-                ],
-                "Vánoce & Zima 🎄": [
-                    {q: "Sob Santy s červeným nosem?", a: ["rudolf"]},
-                    {q: "Film 'Sám doma' hlavní postava?", a: ["kevin"]},
-                    {q: "Kolik rentiérů má Santa?", a: ["9", "devět"]},
-                    {q: "Vánoční nápoj s vajíčky?", a: ["eggnog"]},
-                    {q: "Datum Štědrého dne?", a: ["24", "24 prosinec", "24. prosince"]}
-                ]
-            }
-        };
-
-        const PTS = [200, 400, 600, 800, 1000];
-
-        // State
-        let game = {};
-        let myTeam = localStorage.getItem('myTeam4') || '';
-        let timer = null;
-
-        // Init
-        db.on('value', s => {
-            const data = s.val();
-            if (data) {
-                game = data;
-                render();
-            }
-        });
-
-        function save() {
-            db.set(game);
-        }
-
-        function render() {
-            if (!game.started) {
-                document.getElementById('lobby').style.display = 'block';
-                document.getElementById('game').style.display = 'none';
-                document.getElementById('modal').classList.remove('show');
-                renderTeamsList();
-            } else {
-                document.getElementById('lobby').style.display = 'none';
-                document.getElementById('game').style.display = 'block';
-                renderScoreboard();
-                renderBoard();
-                
-                if (game.current) {
-                    showModal();
-                } else {
-                    document.getElementById('modal').classList.remove('show');
-                    stopTimer();
-                }
+        function createSnowflakes() {
+            const container = document.getElementById('snowflakes');
+            const flakes = ['❄', '❅', '❆', '✻', '✼', '❉'];
+            const count = window.innerWidth < 768 ? 30 : 50;
+            
+            for (let i = 0; i < count; i++) {
+                const flake = document.createElement('div');
+                flake.className = 'snowflake';
+                flake.innerHTML = flakes[Math.floor(Math.random() * flakes.length)];
+                flake.style.left = Math.random() * 100 + '%';
+                flake.style.animationDuration = (Math.random() * 5 + 8) + 's';
+                flake.style.animationDelay = Math.random() * 5 + 's';
+                flake.style.fontSize = (Math.random() * 10 + 8) + 'px';
+                container.appendChild(flake);
             }
         }
 
-        // ЛОББИ
-        function renderTeamsList() {
-            const list = document.getElementById('teamsList');
-            if (!game.teams || game.teams.length === 0) {
-                list.innerHTML = '<div style="color: rgba(255,255,255,0.5); font-size: 1.2rem;">Zatím žádné týmy...</div>';
-                return;
+        function createStars() {
+            const container = document.getElementById('stars');
+            const count = window.innerWidth < 768 ? 15 : 25;
+            
+            for (let i = 0; i < count; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                star.innerHTML = '✦';
+                star.style.left = Math.random() * 100 + '%';
+                star.style.top = Math.random() * 100 + '%';
+                star.style.animationDuration = (Math.random() * 3 + 2) + 's';
+                star.style.animationDelay = Math.random() * 5 + 's';
+                star.style.fontSize = (Math.random() * 15 + 10) + 'px';
+                container.appendChild(star);
             }
-            list.innerHTML = game.teams.map((t, i) => 
-                `<div class="team-item">${i+1}. ${t.name} <span style="float: right;">${t.score} bodů</span></div>`
-            ).join('');
         }
 
         function addTeam() {
-            const input = document.getElementById('teamInput');
-            const name = input.value.trim();
-            if (!name) return alert('Zadejte název týmu!');
+            const teamsList = document.getElementById('teamsList');
+            const teamNumber = teamsList.children.length + 1;
             
-            if (!game.teams) game.teams = [];
-            if (game.teams.some(t => t.name === name)) return alert('Tým už existuje!');
-            
-            game.teams.push({name, score: 0});
-            myTeam = name;
-            localStorage.setItem('myTeam4', name);
-            input.value = '';
-            save();
+            const row = document.createElement('div');
+            row.className = 'team-input-row';
+            row.innerHTML = `
+                <input type="text" class="team-input" placeholder="Název týmu ${teamNumber}" value="Tým ${teamNumber}">
+                <button class="remove-team-btn" onclick="removeTeam(this)" title="Odstranit tým">✕</button>
+            `;
+            teamsList.appendChild(row);
         }
 
-        function clearAll() {
-            const pass = prompt('Heslo:');
-            if (pass !== '6952') return alert('Špatné heslo!');
-            game = {started: false, teams: [], used: []};
-            myTeam = '';
-            localStorage.removeItem('myTeam4');
-            save();
+        function removeTeam(btn) {
+            const teamsList = document.getElementById('teamsList');
+            if (teamsList.children.length > 2) {
+                btn.parentElement.remove();
+            } else {
+                alert('Musí být minimálně 2 týmy!');
+            }
         }
 
         function startGame() {
-            const pass = document.getElementById('passInput').value;
-            if (pass !== '6952') return alert('Špatné heslo!');
-            if (!game.teams || game.teams.length === 0) return alert('Přidejte alespoň jeden tým!');
+            const teamsList = document.getElementById('teamsList');
+            const teamInputs = teamsList.querySelectorAll('.team-input');
+            const teams = [];
             
-            game.started = true;
-            game.round = 1;
-            game.used = [];
-            game.current = null;
-            game.activeTeam = Math.floor(Math.random() * game.teams.length);
-            save();
-        }
-
-        // ИГРА
-        function renderScoreboard() {
-            const sb = document.getElementById('scoreboard');
-            sb.innerHTML = game.teams.map((t, i) => {
-                let cls = 'team-card';
-                if (game.activeTeam === i && !game.current) cls += ' active';
-                if (game.answering === i) cls += ' answering';
-                return `<div class="${cls}">
-                    <div class="team-name">${t.name}</div>
-                    <div class="team-score">${t.score}</div>
-                </div>`;
-            }).join('');
-
-            const info = document.getElementById('infoBanner');
-            if (game.activeTeam !== null && !game.current) {
-                info.style.display = 'block';
-                info.innerHTML = `<strong>${game.teams[game.activeTeam].name}</strong> vybírá otázku 👆`;
-            } else {
-                info.style.display = 'none';
-            }
-        }
-
-        function renderBoard() {
-            const cats = Object.keys(Q[game.round || 1]);
-            let html = cats.map(c => `<div class="category">${c}</div>`).join('');
-            
-            PTS.forEach((pts, row) => {
-                cats.forEach((cat, col) => {
-                    const id = `${game.round}-${col}-${row}`;
-                    const used = game.used && game.used.includes(id);
-                    html += `<div class="cell ${used ? 'used' : ''}" onclick="openQ('${cat}', ${row})">${pts}</div>`;
-                });
+            teamInputs.forEach(input => {
+                const name = input.value.trim();
+                if (name) {
+                    teams.push({ name: name, score: 0 });
+                }
             });
-            
-            document.getElementById('board').innerHTML = html;
-        }
 
-        // ВОПРОС
-        function openQ(cat, idx) {
-            if (game.current) return;
-            
-            const cats = Object.keys(Q[game.round]);
-            const catIdx = cats.indexOf(cat);
-            const id = `${game.round}-${catIdx}-${idx}`;
-            
-            if (game.used && game.used.includes(id)) return;
-            
-            const myIdx = game.teams.findIndex(t => t.name === myTeam);
-            if (game.activeTeam !== null && myIdx !== game.activeTeam) {
-                return alert('Není vaše řada vybírat!');
+            if (teams.length < 2) {
+                alert('Vytvořte minimálně 2 týmy!');
+                return;
             }
-            
-            const q = Q[game.round][cat][idx];
-            game.current = {
-                id,
-                pts: PTS[idx],
-                q: q.q,
-                a: q.a
-            };
-            game.answering = null;
-            game.tried = [];
-            game.timerStart = Date.now();
-            save();
+
+            const timeLimit = parseInt(document.getElementById('timeLimit').value);
+
+            localStorage.setItem('gameSetup', JSON.stringify({
+                teams: teams,
+                timeLimit: timeLimit
+            }));
+
+            window.location.href = 'game.html';
         }
 
-        function showModal() {
-            document.getElementById('modalPts').textContent = game.current.pts;
-            document.getElementById('question').textContent = game.current.q;
-            document.getElementById('result').className = 'result hidden';
-            document.getElementById('correctAnswer').className = 'hidden';
-            document.getElementById('answerInput').value = '';
-            
-            updateBuzzState();
-            document.getElementById('modal').classList.add('show');
-            startTimer();
-        }
-
-        function updateBuzzState() {
-            const myIdx = game.teams.findIndex(t => t.name === myTeam);
-            const buzzBtn = document.getElementById('buzzBtn');
-            const answerSection = document.getElementById('answerSection');
-            const info = document.getElementById('answeringInfo');
-            
-            if (game.answering !== null && game.answering !== undefined) {
-                buzzBtn.classList.add('disabled');
-                info.classList.remove('hidden');
-                document.getElementById('answeringTeam').textContent = game.teams[game.answering].name;
-                
-                if (game.answering === myIdx) {
-                    answerSection.classList.remove('hidden');
-                    setTimeout(() => document.getElementById('answerInput').focus(), 100);
-                } else {
-                    answerSection.classList.add('hidden');
-                }
-            } else {
-                info.classList.add('hidden');
-                answerSection.classList.add('hidden');
-                
-                if (myIdx === -1 || (game.tried && game.tried.includes(myIdx))) {
-                    buzzBtn.classList.add('disabled');
-                } else {
-                    buzzBtn.classList.remove('disabled');
-                }
-            }
-        }
-
-        function buzzClick() {
-            const myIdx = game.teams.findIndex(t => t.name === myTeam);
-            if (myIdx === -1) return alert('Nejste v žádném týmu!');
-            if (game.answering !== null && game.answering !== undefined) return;
-            if (game.tried && game.tried.includes(myIdx)) return;
-            
-            game.answering = myIdx;
-            if (!game.tried) game.tried = [];
-            game.tried.push(myIdx);
-            save();
-        }
-
-        function submitAnswer() {
-            const myIdx = game.teams.findIndex(t => t.name === myTeam);
-            if (game.answering !== myIdx) return;
-            
-            const input = document.getElementById('answerInput').value.trim().toLowerCase();
-            if (!input) return alert('Zadejte odpověď!');
-            
-            const correct = game.current.a.some(a => {
-                const ans = a.toLowerCase();
-                return input === ans || input.includes(ans) || ans.includes(input);
-            });
-            
-            const result = document.getElementById('result');
-            
-            if (correct) {
-                result.textContent = '✅ SPRÁVNĚ!';
-                result.className = 'result correct';
-                game.teams[myIdx].score += game.current.pts;
-                game.activeTeam = myIdx;
-                
-                if (!game.used) game.used = [];
-                game.used.push(game.current.id);
-                save();
-                
-                setTimeout(() => {
-                    game.current = null;
-                    game.answering = null;
-                    game.tried = [];
-                    save();
-                }, 2000);
-            } else {
-                result.textContent = '❌ ŠPATNĚ!';
-                result.className = 'result wrong';
-                game.teams[myIdx].score -= game.current.pts;
-                game.answering = null;
-                game.timerStart = Date.now();
-                save();
-                
-                setTimeout(() => {
-                    result.className = 'result hidden';
-                    if (game.tried && game.tried.length >= game.teams.length) {
-                        showCorrect();
-                    }
-                }, 1500);
-            }
-        }
-
-        function showCorrect() {
-            stopTimer();
-            document.getElementById('buzzBtn').classList.add('disabled');
-            document.getElementById('answerSection').classList.add('hidden');
-            
-            const ca = document.getElementById('correctAnswer');
-            ca.textContent = '✅ Správná odpověď: ' + game.current.a[0];
-            ca.classList.remove('hidden');
-            
-            if (!game.used) game.used = [];
-            game.used.push(game.current.id);
-            save();
-            
-            setTimeout(() => {
-                game.current = null;
-                game.answering = null;
-                game.tried = [];
-                save();
-            }, 3000);
-        }
-
-        function closeQuestion() {
-            const pass = prompt('Heslo pro zavření:');
-            if (pass !== '6952') return alert('Špatné heslo!');
-            
-            if (game.current) {
-                if (!game.used) game.used = [];
-                game.used.push(game.current.id);
-            }
-            game.current = null;
-            game.answering = null;
-            game.tried = [];
-            save();
-        }
-
-        // ТАЙМЕР
-        function startTimer() {
-            stopTimer();
-            timer = setInterval(updateTimer, 100);
-        }
-
-        function updateTimer() {
-            if (!game.timerStart || !game.current) return;
-            
-            const elapsed = Math.floor((Date.now() - game.timerStart) / 1000);
-            const remaining = Math.max(0, 20 - elapsed);
-            
-            const t = document.getElementById('timer');
-            t.textContent = remaining;
-            t.className = 'timer';
-            if (remaining <= 5) t.className = 'timer danger';
-            else if (remaining <= 10) t.className = 'timer warning';
-            
-            if (remaining <= 0) showCorrect();
-        }
-
-        function stopTimer() {
-            if (timer) clearInterval(timer);
-        }
-
-        // АДМИН
-        function adminReset() {
-            const pass = prompt('Admin heslo:');
-            if (pass !== '6952') return alert('Špatné heslo!');
-            
-            const cmd = prompt('Příkazy:\nreset - úplný reset\nlobby - zpět do lobby\nscores - upravit body');
-            
-            if (cmd === 'reset') {
-                game = {started: false, teams: [], used: []};
-                myTeam = '';
-                localStorage.removeItem('myTeam4');
-                save();
-            } else if (cmd === 'lobby') {
-                game.started = false;
-                game.current = null;
-                save();
-            } else if (cmd === 'scores') {
-                const teamName = prompt('Název týmu:');
-                const team = game.teams.find(t => t.name.toLowerCase() === teamName.toLowerCase());
-                if (!team) return alert('Tým nenalezen!');
-                const newScore = prompt('Nové body:', team.score);
-                if (newScore !== null) {
-                    team.score = parseInt(newScore) || 0;
-                    save();
-                }
-            }
-        }
-
-        // Dekorace
-        function createGarland() {
-            const g = document.getElementById('garland');
-            for (let i = 0; i < 40; i++) {
-                g.innerHTML += '<div class="light"></div>';
-            }
-        }
-
-        function createSnowflakes() {
-            const s = document.getElementById('snowflakes');
-            const flakes = ['❄', '❅', '❆', '✻', '✼', '❉'];
-            for (let i = 0; i < 50; i++) {
-                const f = document.createElement('div');
-                f.className = 'snowflake';
-                f.innerHTML = flakes[Math.floor(Math.random() * flakes.length)];
-                f.style.left = Math.random() * 100 + '%';
-                f.style.animationDuration = (3 + Math.random() * 5) + 's';
-                f.style.animationDelay = Math.random() * 5 + 's';
-                f.style.fontSize = (10 + Math.random() * 15) + 'px';
-                s.appendChild(f);
-            }
-        }
-
-        // Enter
-        document.getElementById('teamInput').addEventListener('keypress', e => {
-            if (e.key === 'Enter') addTeam();
-        });
-        document.getElementById('answerInput').addEventListener('keypress', e => {
-            if (e.key === 'Enter') submitAnswer();
-        });
-
-        // Старт
-        createGarland();
         createSnowflakes();
+        createStars();
+        
+        let resizeTimer;
+        window.addEventListener('resize', () => {
+            clearTimeout(resizeTimer);
+            resizeTimer = setTimeout(() => {
+                document.getElementById('snowflakes').innerHTML = '';
+                document.getElementById('stars').innerHTML = '';
+                createSnowflakes();
+                createStars();
+            }, 250);
+        });
     </script>
 </body>
 </html>
