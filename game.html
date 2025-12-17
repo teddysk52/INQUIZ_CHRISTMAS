@@ -724,6 +724,54 @@
             box-shadow: 0 0 20px rgba(0, 212, 255, 0.3);
         }
 
+        /* Final themes grid */
+        .final-themes-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .final-theme-card {
+            background: var(--glass-bg);
+            border: 3px solid var(--glass-border);
+            border-radius: 15px;
+            padding: 25px 20px;
+            text-align: center;
+            font-size: clamp(1rem, 2vw, 1.2rem);
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .final-theme-card:hover:not(.eliminated) {
+            transform: scale(1.03);
+            border-color: var(--christmas-red);
+            box-shadow: 0 0 25px rgba(196, 30, 58, 0.5);
+            background: rgba(196, 30, 58, 0.2);
+        }
+
+        .final-theme-card.eliminated {
+            background: rgba(50, 50, 50, 0.3);
+            border-color: rgba(255, 255, 255, 0.1);
+            color: rgba(255, 255, 255, 0.3);
+            cursor: not-allowed;
+            text-decoration: line-through;
+        }
+
+        .final-theme-card.winner {
+            border-color: #22c55e;
+            box-shadow: 0 0 30px rgba(34, 197, 94, 0.6);
+            background: rgba(34, 197, 94, 0.2);
+            animation: winnerPulse 1s ease-in-out infinite;
+        }
+
+        @media (max-width: 600px) {
+            .final-themes-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
         .start-round-btn {
             padding: 20px 50px;
             font-size: clamp(1.2rem, 3vw, 1.5rem);
@@ -976,6 +1024,16 @@
         </div>
 
         <div class="admin-section">
+            <div class="admin-label">Přejít na kolo:</div>
+            <div style="display: flex; gap: 10px;">
+                <button class="btn" onclick="goToRound(0)" style="flex: 1;">1️⃣</button>
+                <button class="btn" onclick="goToRound(1)" style="flex: 1;">2️⃣</button>
+                <button class="btn" onclick="goToRound(2)" style="flex: 1;">3️⃣</button>
+                <button class="btn" onclick="goToRound(3)" style="flex: 1;">4️⃣</button>
+            </div>
+        </div>
+
+        <div class="admin-section">
             <button class="btn" onclick="resetRound()" style="width: 100%;">🔄 Resetovat kolo</button>
         </div>
 
@@ -994,7 +1052,7 @@
 
     <div class="container">
         <div style="text-align: center; margin-bottom: 15px;">
-            <div class="round-indicator" id="roundIndicator">🎄 KOLO 1 / 3</div>
+            <div class="round-indicator" id="roundIndicator">🎄 KOLO 1 / 4</div>
         </div>
 
         <div class="turn-indicator" id="turnIndicator">
@@ -1022,6 +1080,9 @@
             <div class="modal-category" id="modalCategory"></div>
             <div class="modal-points" id="modalPoints"></div>
             <div class="timer" id="timer">30</div>
+            <div id="questionImageContainer" style="display: none; margin: 20px auto; max-width: 400px;">
+                <img id="questionImage" style="width: 100%; max-height: 300px; object-fit: contain; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);" />
+            </div>
             <div class="modal-question" id="modalQuestion"></div>
 
             <div class="answer-result" id="answerResult"></div>
@@ -1059,6 +1120,36 @@
         </div>
     </div>
 
+    <!-- Final round selection modal -->
+    <div class="modal" id="finalRoundModal">
+        <div class="modal-content round-modal-content" style="max-width: 1000px;">
+            <h1 class="round-title">🏆 FINÁLE 🏆</h1>
+            <h2 style="color: var(--christmas-blue); margin-bottom: 15px;" id="finalInstructions">Každý tým vyřadí témata, která nechce hrát!</h2>
+            <h3 style="color: #fbbf24; margin-bottom: 25px;" id="eliminatingTeam">Vyřazuje: Tým 1</h3>
+            <div class="final-themes-grid" id="finalThemesGrid"></div>
+            <p style="margin-top: 20px; color: rgba(255,255,255,0.6);" id="remainingEliminations">Zbývá vyřadit: 3 témata</p>
+        </div>
+    </div>
+
+    <!-- Final question modal -->
+    <div class="modal" id="finalQuestionModal">
+        <div class="modal-content">
+            <div style="font-size: 1.5rem; color: var(--christmas-blue); margin-bottom: 10px;">🏆 FINÁLOVÁ OTÁZKA 🏆</div>
+            <div class="modal-category" id="finalModalCategory"></div>
+            <div class="modal-points" style="font-size: 3rem;">3000</div>
+            <div class="timer" id="finalTimer">60</div>
+            <div class="modal-question" id="finalModalQuestion"></div>
+
+            <div class="answer-result" id="finalAnswerResult"></div>
+            <div class="correct-answer-display" id="finalCorrectAnswerDisplay"></div>
+
+            <div class="control-buttons" id="finalControlButtons">
+                <button class="btn" onclick="showFinalAnswer()" id="showFinalAnswerBtn">💡 Ukázat odpověď</button>
+            </div>
+            <div class="control-buttons" id="finalTeamButtons" style="display: none; flex-wrap: wrap;"></div>
+        </div>
+    </div>
+
     <script>
         // Game state
         let gameState = {
@@ -1073,85 +1164,34 @@
 
         let timerInterval = null;
 
+        // Final round state
+        let finalState = {
+            themes: [],
+            eliminatedThemes: [],
+            currentTeamEliminating: 0,
+            eliminationsPerTeam: 3,
+            eliminationsLeft: 3,
+            finalTheme: null,
+            finalQuestion: null
+        };
+
+        // FINAL ROUND - 10 THEMES WITH 1 QUESTION EACH
+        const finalThemes = {
+            "🎮 GTA VI & Rockstar": { question: "Jak se jmenují dvě hlavní postavy v GTA VI?", answer: "Lucia a Jason" },
+            "📱 TikTok Drama": { question: "Proč chtěly USA zakázat TikTok?", answer: "Čínská špionáž / bezpečnost dat" },
+            "🤖 AI: Pravda nebo Fake": { question: "Která firma vytvořila ChatGPT?", answer: "OpenAI" },
+            "⚽ Fotbal Legends": { question: "Kolik gólů dal Messi na Mistrovství světa celkem?", answer: "13" },
+            "🎵 Rap & World Hits": { question: "Kdo je nejstreamovanější umělec na Spotify 2023?", answer: "Taylor Swift" },
+            "🎥 Netflix & Series": { question: "Kolik sérií má Squid Game?", answer: "2" },
+            "💸 Money & Scams": { question: "Jak se jmenoval největší krypto scam (FTX zakladatel)?", answer: "Sam Bankman-Fried" },
+            "🔫 Valorant & CS Esport": { question: "Kolik agentů má Valorant (přibližně 2024)?", answer: "Cca 24-25" },
+            "📺 YouTube Creators": { question: "Kolik odběratelů má MrBeast (přibližně)?", answer: "Cca 330+ milionů" },
+            "🔥 WTF Internet Facts": { question: "Co je 'Rule 34' na internetu?", answer: "Pokud to existuje, existuje toho p*rno" }
+        };
+
         // 3 ROUNDS WITH 5 THEMES EACH = 15 THEMES, 75 QUESTIONS
         const rounds = [
-            // ROUND 1
-            {
-                "⭐ Adam Hojer Special": [
-                    { points: 100, question: "V jakém měsíci má Adam narozeniny?", answer: "Srpen" },
-                    { points: 200, question: "Na jaké fakultě Adam studuje?", answer: "Ekonomické" },
-                    { points: 300, question: "Kolik stránek má Adamovo portfolio?", answer: "64" },
-                    { points: 400, question: "Jaký je Adamův oblíbený dopravní prostředek?", answer: "Trolejbus" },
-                    { points: 500, question: "Kolik je Adamovi let?", answer: "20" }
-                ],
-                "⛏️ Minecraft": [
-                    { points: 100, question: "Jak se jmenuje hlavní boss v Endu?", answer: "Ender Dragon" },
-                    { points: 200, question: "Z čeho se craftí pochodeň?", answer: "Uhlí + klacek" },
-                    { points: 300, question: "Kolik obsidiánu potřebuješ na Nether portál?", answer: "10 (minimum)" },
-                    { points: 400, question: "Jak se jmenuje mob, co vybuchuje a je zelený?", answer: "Creeper" },
-                    { points: 500, question: "V jakém roce vyšel Minecraft oficiálně?", answer: "2011" }
-                ],
-                "⚽ Fotbal": [
-                    { points: 100, question: "Kolik hráčů má fotbalový tým na hřišti?", answer: "11" },
-                    { points: 200, question: "Kdo vyhrál MS 2022 v Kataru?", answer: "Argentina" },
-                    { points: 300, question: "Ve kterém klubu hraje Haaland?", answer: "Manchester City" },
-                    { points: 400, question: "Kolik Zlatých míčů má Messi?", answer: "8" },
-                    { points: 500, question: "Který klub vyhrál nejvíc Champions League?", answer: "Real Madrid (15)" }
-                ],
-                "💜 C# Gigachad": [
-                    { points: 100, question: "Jak vypíšeš text do konzole v C#?", answer: "Console.WriteLine()" },
-                    { points: 200, question: "Jaký datový typ je pro celá čísla?", answer: "int" },
-                    { points: 300, question: "Co znamená 'string'?", answer: "Textový řetězec" },
-                    { points: 400, question: "Jak napíšeš podmínku if v C#?", answer: "if (podmínka) { }" },
-                    { points: 500, question: "Co je 'bool'?", answer: "True/False hodnota" }
-                ],
-                "🎄 Vánoce WTF": [
-                    { points: 100, question: "Ve které zemi jedí KFC na Vánoce jako tradici?", answer: "Japonsko" },
-                    { points: 200, question: "Jak se jmenuje děsivá příšera co trestá zlobivé děti?", answer: "Krampus" },
-                    { points: 300, question: "Která země má tradici házet staré věci z okna na Nový rok?", answer: "Itálie" },
-                    { points: 400, question: "Co je 'Elf on the Shelf'?", answer: "Vánoční elf co šmíruje děti" },
-                    { points: 500, question: "Která skandinávská země má 'Yule Cat' co žere lidi?", answer: "Island" }
-                ]
-            },
-            // ROUND 2
-            {
-                "🐍 Python Gigachad": [
-                    { points: 100, question: "Jak vypíšeš 'Hello' v Pythonu?", answer: "print('Hello')" },
-                    { points: 200, question: "Jak vytvoříš prázdný list v Pythonu?", answer: "[] nebo list()" },
-                    { points: 300, question: "Co vrátí len('ahoj')?", answer: "4" },
-                    { points: 400, question: "Jak napíšeš for cyklus od 0 do 9?", answer: "for i in range(10):" },
-                    { points: 500, question: "Co je pip?", answer: "Package manager pro Python" }
-                ],
-                "🏒 Hokej": [
-                    { points: 100, question: "Kolik hráčů je na ledě za jeden tým (bez brankáře)?", answer: "5" },
-                    { points: 200, question: "Jak dlouho trvá jeden hokejový zápas (čistý čas)?", answer: "60 minut (3x20)" },
-                    { points: 300, question: "Jak se jmenuje česká hokejová liga?", answer: "Extraliga / Tipsport extraliga" },
-                    { points: 400, question: "Kdo je nejslavnější český hokejista všech dob?", answer: "Jaromír Jágr" },
-                    { points: 500, question: "Kolik má Jágr bodů v NHL kariéře (přibližně)?", answer: "Cca 1920" }
-                ],
-                "🏎️ Formule 1": [
-                    { points: 100, question: "Jakou barvu má Ferrari?", answer: "Červená" },
-                    { points: 200, question: "Kdo je Max Verstappen?", answer: "Jezdec F1 / mistr světa" },
-                    { points: 300, question: "Kolik kol má závod v Monaku přibližně?", answer: "78" },
-                    { points: 400, question: "Který tým má nejvíc titulů konstruktérů?", answer: "Ferrari" },
-                    { points: 500, question: "Kolik titulů mistra světa má Lewis Hamilton?", answer: "7" }
-                ],
-                "🔫 CS2": [
-                    { points: 100, question: "Kolik hráčů je v competitive týmu?", answer: "5" },
-                    { points: 200, question: "Jak se jmenuje nejslavnější mapa s tunely a bombsity B?", answer: "Dust 2" },
-                    { points: 300, question: "Co je 'AWP'?", answer: "Sniper puška" },
-                    { points: 400, question: "Kolik kol potřebuješ k výhře v competitive?", answer: "13" },
-                    { points: 500, question: "Jak se jmenuje český tým co vyhrál Major?", answer: "Není žádný (trick question) / nebo řekni nějaký" }
-                ],
-                "📱 TikTok & Memes": [
-                    { points: 100, question: "Co znamená 'sus'?", answer: "Suspicious / podezřelý" },
-                    { points: 200, question: "Z jaké hry pochází 'Among Us' memes?", answer: "Among Us" },
-                    { points: 300, question: "Co je 'sigma male'?", answer: "Meme o nezávislém alfovi" },
-                    { points: 400, question: "Kdo je 'Khaby Lame'?", answer: "TikToker co reaguje na life hacky" },
-                    { points: 500, question: "Co znamená 'W' a 'L' v internetu?", answer: "Win a Loss" }
-                ]
-            },
-            // ROUND 3
+            // ROUND 1 (бывший раунд 3)
             {
                 "🎰 Gambling & Casino": [
                     { points: 100, question: "Jaká barva je nejčastější na ruletě kromě zelené?", answer: "Červená a černá" },
@@ -1161,11 +1201,11 @@
                     { points: 500, question: "Jak se jmenuje nejslavnější casino město?", answer: "Las Vegas" }
                 ],
                 "📚 Školní předměty": [
-                    { points: 100, question: "Kolik je 15% z 200?", answer: "30" },
-                    { points: 200, question: "Jaký je chemický vzorec vody?", answer: "H2O" },
-                    { points: 300, question: "Kdo napsal Romea a Julii?", answer: "William Shakespeare" },
-                    { points: 400, question: "Kolik stupňů má pravoúhlý trojúhelník v pravém úhlu?", answer: "90°" },
-                    { points: 500, question: "Co je hlavní město Austrálie?", answer: "Canberra (ne Sydney!)" }
+                    { points: 100, question: "Kolik je odmocnina z 144?", answer: "12" },
+                    { points: 200, question: "Co je derivace x²?", answer: "2x" },
+                    { points: 300, question: "Jaký plyn tvoří 78% atmosféry?", answer: "Dusík (N₂)" },
+                    { points: 400, question: "Kdo napsal 'Máj'?", answer: "Karel Hynek Mácha" },
+                    { points: 500, question: "Kolik je log₁₀(1000)?", answer: "3" }
                 ],
                 "🎆 Nový rok & Silvestr": [
                     { points: 100, question: "Kolik sekund před půlnocí se začíná odpočet?", answer: "10" },
@@ -1181,12 +1221,126 @@
                     { points: 400, question: "Která hra má postavy Jett, Phoenix a Sage?", answer: "Valorant" },
                     { points: 500, question: "V jakém roce vyšlo GTA V?", answer: "2013" }
                 ],
-                "📺 YouTube & Twitch": [
-                    { points: 100, question: "Kdo je MrBeast?", answer: "YouTuber co rozdává peníze" },
-                    { points: 200, question: "Jak se jmenuje platforma pro streamování od Amazonu?", answer: "Twitch" },
-                    { points: 300, question: "Kolik subů má přibližně PewDiePie?", answer: "Cca 111 milionů" },
-                    { points: 400, question: "Kdo je xQc?", answer: "Streamer / bývalý Overwatch pro" },
-                    { points: 500, question: "Jak se jmenuje český/slovenský Minecraft YouTuber?", answer: "MenT / FIZIstyle / Gejmr" }
+                "🎮 Český Esport": [
+                    { points: 100, question: "Jakou pozici hraje oskar v CS?", answer: "AWPer" },
+                    { points: 200, question: "Za jaký mezinárodní tým hrál frozen?", answer: "FaZe Clan" },
+                    { points: 300, question: "Jak se jmenuje český League of Legends tým?", answer: "eSuba / Dynamo Eclot" },
+                    { points: 400, question: "Který český hráč má přezdívku 'NEOFRAG'?", answer: "Adam Zouhar" },
+                    { points: 500, question: "Ve které hře soutěží český tým Entropiq?", answer: "CS2 / Valorant / více her" }
+                ]
+            },
+            // ROUND 2 (обновленные вопросы)
+            {
+                "🐍 Python Gigachad": [
+                    { points: 100, question: "Jaký symbol používáš pro komentář v Pythonu?", answer: "#" },
+                    { points: 200, question: "Co udělá 'Hello'[0]?", answer: "Vrátí 'H'" },
+                    { points: 300, question: "Jaký je rozdíl mezi '==' a '='?", answer: "== porovnává, = přiřazuje" },
+                    { points: 400, question: "Co vrátí type(3.14)?", answer: "float" },
+                    { points: 500, question: "Jak přidáš prvek na konec listu?", answer: ".append()" }
+                ],
+                "🏒 Hokej": [
+                    { points: 100, question: "Jak dlouho trvá jedna třetina v hokeji?", answer: "20 minut" },
+                    { points: 200, question: "Co je 'hat-trick'?", answer: "3 góly jednoho hráče v zápase" },
+                    { points: 300, question: "Jak se jmenuje nejslavnější český hokejista?", answer: "Jaromír Jágr" },
+                    { points: 400, question: "Kolik hráčů je na ledě za jeden tým včetně brankáře?", answer: "6" },
+                    { points: 500, question: "Který český tým má nejvíc titulů v extralize?", answer: "HC Kometa Brno / Sparta" }
+                ],
+                "🇨🇿 Česko & Plzeň": [
+                    { points: 100, question: "Kolik piv se vypije v ČR na osobu za rok (cca)?", answer: "Cca 140 litrů (1. na světě)" },
+                    { points: 200, question: "V jakém roce vznikla Plzeň?", answer: "1295" },
+                    { points: 300, question: "Jak se jmenuje nejvyšší hora ČR?", answer: "Sněžka (1603 m)" },
+                    { points: 400, question: "Co vynalezl Otto Wichterle z ČR?", answer: "Kontaktní čočky" },
+                    { points: 500, question: "Kolik má Plzeň městských obvodů?", answer: "10" }
+                ],
+                "🔫 CS2": [
+                    { points: 100, question: "Kolik peněz dostaneš za výhru pistol rounsu?", answer: "3250$" },
+                    { points: 200, question: "Jak se jmenuje nejdražší knife skin?", answer: "Karambit / různé" },
+                    { points: 300, question: "Co je 'eco round'?", answer: "Kolo kdy šetříš peníze" },
+                    { points: 400, question: "Kolik damage dá AWP do těla?", answer: "Over 100 (one shot kill)" },
+                    { points: 500, question: "Jak se jmenuje mapa s věží uprostřed a A/B spoty?", answer: "Vertigo" }
+                ],
+                "📱 TikTok & Memes": [
+                    { points: 100, question: "Jak se původně jmenoval TikTok?", answer: "Musical.ly" },
+                    { points: 200, question: "Co je 'POV' ve videu?", answer: "Point of View / Úhel pohledu" },
+                    { points: 300, question: "Kdo je nejsledovanější člověk na TikToku?", answer: "Khaby Lame" },
+                    { points: 400, question: "Co znamená 'ratio' v komentářích?", answer: "Když reply má víc lajků než originál" },
+                    { points: 500, question: "V jakém roce TikTok koupil Musical.ly?", answer: "2018" }
+                ]
+            },
+            // ROUND 3 (бывший раунд 1, обновленные вопросы)
+            {
+                "⭐ Adam Hojer Special": [
+                    { points: 100, question: "V jakém měsíci má Adam narozeniny?", answer: "Srpen" },
+                    { points: 200, question: "Na jaké fakultě Adam studuje?", answer: "Ekonomické" },
+                    { points: 300, question: "Kolik stránek má Adamovo portfolio?", answer: "64" },
+                    { points: 400, question: "Jaký je Adamův oblíbený dopravní prostředek?", answer: "Trolejbus" },
+                    { points: 500, question: "Kolik je Adamovi let?", answer: "20" }
+                ],
+                "⛏️ Minecraft": [
+                    { points: 100, question: "Kolik bloků vysoko můžeš stavět v Minecraftu?", answer: "320 (od -64 do 256)" },
+                    { points: 200, question: "Co dropne Wither boss když ho zabiješ?", answer: "Nether Star" },
+                    { points: 300, question: "Kolik End Crystals potřebuješ k respawnu Ender Dragona?", answer: "4" },
+                    { points: 400, question: "Jak se jmenuje dimension s Wardenem?", answer: "Deep Dark / Ancient City" },
+                    { points: 500, question: "Jaká je šance na drop Tridentu z Drowned?", answer: "Cca 8.5% (s Looting III 11.5%)" }
+                ],
+                "⚽ Fotbal": [
+                    { points: 100, question: "Kolik minut trvá jeden poločas?", answer: "45 minut" },
+                    { points: 200, question: "Kdo dal nejvíc gólů v historii fotbalu?", answer: "Cristiano Ronaldo / Josef Bican" },
+                    { points: 300, question: "Ve kterém roce Česko prohrálo finále EURO?", answer: "1996" },
+                    { points: 400, question: "Kolik stál přestup Neymara do PSG?", answer: "222 milionů €" },
+                    { points: 500, question: "Který tým vyhrál treble v roce 2023?", answer: "Manchester City" }
+                ],
+                "💜 C# Gigachad": [
+                    { points: 100, question: "Jak ukončíš příkaz v C#?", answer: "Středníkem ;" },
+                    { points: 200, question: "Co je 'var' v C#?", answer: "Automatický datový typ" },
+                    { points: 300, question: "Jak vytvoříš pole 5 intů?", answer: "int[] arr = new int[5];" },
+                    { points: 400, question: "Co znamená 'private' u metody?", answer: "Přístupná jen uvnitř třídy" },
+                    { points: 500, question: "Co je rozdíl mezi 'class' a 'struct'?", answer: "Class = reference type, Struct = value type" }
+                ],
+                "🎄 Vánoce WTF": [
+                    { points: 100, question: "Ve které zemi jedí KFC na Vánoce jako tradici?", answer: "Japonsko" },
+                    { points: 200, question: "Kolik sobů má Santa (včetně Rudolfa)?", answer: "9" },
+                    { points: 300, question: "Jak se jmenuje děsivá příšera co trestá zlobivé děti v Alpách?", answer: "Krampus" },
+                    { points: 400, question: "V jaké zemi se schovává okurka na stromečku?", answer: "USA (Christmas Pickle)" },
+                    { points: 500, question: "Která skandinávská země má 'Yule Cat' co žere lidi bez nového oblečení?", answer: "Island" }
+                ]
+            },
+            // ROUND 4
+            {
+                "🇬🇧 Angličtina": [
+                    { points: 100, question: "Co znamená 'ASAP'?", answer: "As Soon As Possible" },
+                    { points: 200, question: "Přelož: 'I couldn't care less'", answer: "Je mi to úplně jedno" },
+                    { points: 300, question: "Co znamená 'to ghost someone'?", answer: "Přestat někomu odpovídat / ignorovat" },
+                    { points: 400, question: "Přelož: 'The elephant in the room'", answer: "Problém o kterém se nemluví" },
+                    { points: 500, question: "Co znamená 'to pull an all-nighter'?", answer: "Probdět celou noc (učení/práce)" }
+                ],
+                "🎵 Hudba & Lyrics": [
+                    { points: 100, question: "Dokonči: 'Never gonna give you up, never gonna...'", answer: "Let you down" },
+                    { points: 200, question: "Kdo zpívá 'See You Again' z Fast & Furious 7?", answer: "Wiz Khalifa ft. Charlie Puth" },
+                    { points: 300, question: "Dokonči text Billie Eilish: 'I'm the bad guy...'", answer: "Duh" },
+                    { points: 400, question: "Z jaké písně je: 'Is this the real life? Is this just fantasy?'", answer: "Bohemian Rhapsody (Queen)" },
+                    { points: 500, question: "Kdo zpívá 'Blinding Lights' a z jakého je alba?", answer: "The Weeknd, After Hours" }
+                ],
+                "🎬 Filmy & Seriály": [
+                    { points: 100, question: "Jak se jmenuje hlavní postava ve Spidermanovi (Tom Holland)?", answer: "Peter Parker" },
+                    { points: 200, question: "Kolik sérií má Breaking Bad?", answer: "5" },
+                    { points: 300, question: "Kdo hraje Wednesday Addams v seriálu Wednesday?", answer: "Jenna Ortega" },
+                    { points: 400, question: "Jak se jmenuje planeta v Dune?", answer: "Arrakis" },
+                    { points: 500, question: "Kolik filmů má Marvel Cinematic Universe (přibližně 2024)?", answer: "33-34" }
+                ],
+                "📱 Apps & Internet": [
+                    { points: 100, question: "Jak se původně jmenoval TikTok?", answer: "Musical.ly" },
+                    { points: 200, question: "Co znamená 'ratio' na Twitteru/X?", answer: "Když reply má víc lajků než originál" },
+                    { points: 300, question: "Která appka má logo ducha?", answer: "Snapchat" },
+                    { points: 400, question: "Co je Discord původně - pro hráče nebo firmy?", answer: "Pro hráče" },
+                    { points: 500, question: "V jakém roce koupil Elon Musk Twitter?", answer: "2022" }
+                ],
+                "🧠 IQ Test": [
+                    { points: 100, question: "Co je těžší: kilo peří nebo kilo železa?", answer: "Stejně (obojí kilo)" },
+                    { points: 200, question: "Kolik měsíců má 28 dní?", answer: "Všechny (12)" },
+                    { points: 300, question: "Otec a syn měli nehodu. Otec zemřel. Chirurg řekl: 'Nemohu operovat, je to můj syn.' Jak?", answer: "Chirurg je matka" },
+                    { points: 400, question: "Máš 3 jablka a vezmeš 2. Kolik máš?", answer: "2 (ty co jsi vzal)" },
+                    { points: 500, question: "Muž ukazuje na fotku a říká: 'Nemám bratry ani sestry, ale otec toho muže je syn mého otce.' Kdo je na fotce?", answer: "Jeho syn" }
                 ]
             }
         ];
@@ -1274,7 +1428,7 @@
 
         function updateRoundIndicator() {
             const roundNum = gameState.currentRound + 1;
-            document.getElementById('roundIndicator').textContent = `🎄 KOLO ${roundNum} / 3`;
+            document.getElementById('roundIndicator').textContent = `🎄 KOLO ${roundNum} / 4`;
         }
 
         function updateTurnIndicator() {
@@ -1344,6 +1498,16 @@
             document.getElementById('modalCategory').textContent = category;
             document.getElementById('modalPoints').textContent = points;
             document.getElementById('modalQuestion').textContent = question.question;
+
+            // Handle image display
+            const imageContainer = document.getElementById('questionImageContainer');
+            const questionImage = document.getElementById('questionImage');
+            if (question.image) {
+                questionImage.src = question.image;
+                imageContainer.style.display = 'block';
+            } else {
+                imageContainer.style.display = 'none';
+            }
 
             document.getElementById('answerResult').className = 'answer-result';
             document.getElementById('correctAnswerDisplay').style.display = 'none';
@@ -1499,8 +1663,8 @@
             });
 
             const nextBtn = document.getElementById('nextRoundBtn');
-            if (gameState.currentRound >= 2) {
-                nextBtn.textContent = '🏆 ZOBRAZIT VÝSLEDKY';
+            if (gameState.currentRound >= 3) {
+                nextBtn.textContent = '🏆 FINÁLE';
             } else {
                 nextBtn.textContent = '➡️ DALŠÍ KOLO';
             }
@@ -1511,7 +1675,7 @@
         function goToNextRound() {
             document.getElementById('endRoundModal').classList.remove('active');
 
-            if (gameState.currentRound >= 2) {
+            if (gameState.currentRound >= 3) {
                 showFinalResults();
             } else {
                 gameState.currentRound++;
@@ -1520,6 +1684,210 @@
         }
 
         function showFinalResults() {
+            // Start final round instead of showing results
+            startFinalRound();
+        }
+
+        function startFinalRound() {
+            // Initialize final state
+            finalState.themes = Object.keys(finalThemes);
+            finalState.eliminatedThemes = [];
+            finalState.currentTeamEliminating = 0;
+            finalState.eliminationsLeft = 3;
+            finalState.finalTheme = null;
+            finalState.finalQuestion = null;
+
+            // Calculate eliminations per team based on team count
+            // Need to eliminate 9 themes (10 - 1 = 9)
+            // Each team eliminates 9 / teamCount themes (rounded)
+            const totalEliminations = 9;
+            finalState.eliminationsPerTeam = Math.ceil(totalEliminations / gameState.teams.length);
+
+            renderFinalThemesGrid();
+            updateFinalInstructions();
+            document.getElementById('finalRoundModal').classList.add('active');
+        }
+
+        function renderFinalThemesGrid() {
+            const grid = document.getElementById('finalThemesGrid');
+            grid.innerHTML = '';
+
+            finalState.themes.forEach(theme => {
+                const card = document.createElement('div');
+                card.className = 'final-theme-card';
+                if (finalState.eliminatedThemes.includes(theme)) {
+                    card.classList.add('eliminated');
+                }
+                card.textContent = theme;
+                
+                if (!finalState.eliminatedThemes.includes(theme)) {
+                    card.onclick = () => eliminateTheme(theme);
+                }
+                
+                grid.appendChild(card);
+            });
+        }
+
+        function updateFinalInstructions() {
+            const remaining = finalState.themes.length - finalState.eliminatedThemes.length;
+            const team = gameState.teams[finalState.currentTeamEliminating];
+            
+            document.getElementById('eliminatingTeam').textContent = `Vyřazuje: ${team.name}`;
+            document.getElementById('remainingEliminations').textContent = `Zbývá vyřadit: ${finalState.eliminationsLeft} témat`;
+            
+            if (remaining === 1) {
+                // Show final theme
+                const winningTheme = finalState.themes.find(t => !finalState.eliminatedThemes.includes(t));
+                finalState.finalTheme = winningTheme;
+                finalState.finalQuestion = finalThemes[winningTheme];
+                
+                document.getElementById('finalInstructions').textContent = '🎯 Finálové téma vybráno!';
+                document.getElementById('eliminatingTeam').textContent = winningTheme;
+                document.getElementById('remainingEliminations').innerHTML = '<button class="start-round-btn" onclick="startFinalQuestion()">🚀 HRÁT FINÁLOVOU OTÁZKU!</button>';
+                
+                // Mark winning theme
+                const cards = document.querySelectorAll('.final-theme-card');
+                cards.forEach(card => {
+                    if (card.textContent === winningTheme) {
+                        card.classList.add('winner');
+                    }
+                });
+            }
+        }
+
+        function eliminateTheme(theme) {
+            if (finalState.eliminatedThemes.includes(theme)) return;
+            if (finalState.themes.length - finalState.eliminatedThemes.length <= 1) return;
+
+            finalState.eliminatedThemes.push(theme);
+            finalState.eliminationsLeft--;
+
+            renderFinalThemesGrid();
+
+            // Check if current team finished eliminating
+            if (finalState.eliminationsLeft <= 0) {
+                // Move to next team
+                finalState.currentTeamEliminating = (finalState.currentTeamEliminating + 1) % gameState.teams.length;
+                
+                // Calculate remaining eliminations for this team
+                const remaining = finalState.themes.length - finalState.eliminatedThemes.length - 1;
+                finalState.eliminationsLeft = Math.min(finalState.eliminationsPerTeam, remaining);
+            }
+
+            updateFinalInstructions();
+        }
+
+        function startFinalQuestion() {
+            document.getElementById('finalRoundModal').classList.remove('active');
+            
+            document.getElementById('finalModalCategory').textContent = finalState.finalTheme;
+            document.getElementById('finalModalQuestion').textContent = finalState.finalQuestion.question;
+            document.getElementById('finalAnswerResult').className = 'answer-result';
+            document.getElementById('finalCorrectAnswerDisplay').style.display = 'none';
+            document.getElementById('showFinalAnswerBtn').style.display = 'inline-block';
+            document.getElementById('finalControlButtons').style.display = 'flex';
+            document.getElementById('finalTeamButtons').style.display = 'none';
+            
+            gameState.timeLeft = 60;
+            document.getElementById('finalTimer').textContent = '60';
+            
+            document.getElementById('finalQuestionModal').classList.add('active');
+            startFinalTimer();
+        }
+
+        function startFinalTimer() {
+            stopTimer();
+            updateFinalTimerDisplay();
+
+            timerInterval = setInterval(() => {
+                gameState.timeLeft--;
+                updateFinalTimerDisplay();
+
+                if (gameState.timeLeft <= 0) {
+                    stopTimer();
+                    showFinalAnswer();
+                }
+            }, 1000);
+        }
+
+        function updateFinalTimerDisplay() {
+            const timer = document.getElementById('finalTimer');
+            timer.textContent = gameState.timeLeft;
+
+            timer.classList.remove('warning', 'danger');
+            if (gameState.timeLeft <= 10) {
+                timer.classList.add('danger');
+            } else if (gameState.timeLeft <= 20) {
+                timer.classList.add('warning');
+            }
+        }
+
+        function showFinalAnswer() {
+            stopTimer();
+            const display = document.getElementById('finalCorrectAnswerDisplay');
+            display.textContent = `💡 Správná odpověď: ${finalState.finalQuestion.answer}`;
+            display.style.display = 'block';
+            
+            document.getElementById('showFinalAnswerBtn').style.display = 'none';
+            document.getElementById('finalControlButtons').style.display = 'none';
+            
+            // Show team buttons to award points - multiple selection allowed
+            const teamButtons = document.getElementById('finalTeamButtons');
+            teamButtons.innerHTML = '<p style="width: 100%; text-align: center; margin-bottom: 15px; color: var(--christmas-blue);">Kdo odpověděl správně? (+3000 bodů) - můžeš vybrat více týmů!</p>';
+            
+            // Track selected teams
+            window.selectedFinalTeams = [];
+            
+            gameState.teams.forEach((team, index) => {
+                const btn = document.createElement('button');
+                btn.className = 'btn';
+                btn.textContent = team.name;
+                btn.dataset.teamIndex = index;
+                btn.onclick = () => toggleFinalTeam(btn, index);
+                teamButtons.appendChild(btn);
+            });
+            
+            // Add confirm button
+            const confirmBtn = document.createElement('button');
+            confirmBtn.className = 'btn btn-correct';
+            confirmBtn.textContent = '✓ Potvrdit výběr';
+            confirmBtn.style.marginTop = '15px';
+            confirmBtn.style.width = '100%';
+            confirmBtn.onclick = () => confirmFinalPoints();
+            teamButtons.appendChild(confirmBtn);
+            
+            // Add no one button
+            const noOneBtn = document.createElement('button');
+            noOneBtn.className = 'btn btn-wrong';
+            noOneBtn.textContent = 'Nikdo neodpověděl správně';
+            noOneBtn.style.width = '100%';
+            noOneBtn.onclick = () => endGame();
+            teamButtons.appendChild(noOneBtn);
+            
+            teamButtons.style.display = 'flex';
+        }
+
+        function toggleFinalTeam(btn, teamIndex) {
+            const idx = window.selectedFinalTeams.indexOf(teamIndex);
+            if (idx > -1) {
+                window.selectedFinalTeams.splice(idx, 1);
+                btn.classList.remove('btn-correct');
+            } else {
+                window.selectedFinalTeams.push(teamIndex);
+                btn.classList.add('btn-correct');
+            }
+        }
+
+        function confirmFinalPoints() {
+            window.selectedFinalTeams.forEach(teamIndex => {
+                gameState.teams[teamIndex].score += 3000;
+            });
+            endGame();
+        }
+
+        function endGame() {
+            document.getElementById('finalQuestionModal').classList.remove('active');
+            
             const sorted = [...gameState.teams].sort((a, b) => b.score - a.score);
             const winner = sorted[0];
 
@@ -1603,6 +1971,13 @@
                 renderGameBoard();
                 toggleAdmin();
             }
+        }
+
+        function goToRound(roundIndex) {
+            if (roundIndex < 0 || roundIndex > 3) return;
+            gameState.currentRound = roundIndex;
+            toggleAdmin();
+            showRoundIntro();
         }
 
         function resetGame() {
