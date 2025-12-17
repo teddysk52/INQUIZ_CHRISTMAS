@@ -6,12 +6,7 @@
     <title>🎄 INQUIZ 🎅</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         :root {
             --christmas-red: #c41e3a;
             --christmas-green: #165b33;
@@ -21,7 +16,6 @@
             --glass-bg: rgba(255, 255, 255, 0.05);
             --glass-border: rgba(255, 255, 255, 0.1);
         }
-
         body {
             font-family: 'Poppins', sans-serif;
             background: linear-gradient(135deg, #0a0e1a 0%, #1a1a3e 25%, #0a0e1a 50%, #1a1a3e 75%, #0a0e1a 100%);
@@ -32,19 +26,15 @@
             overflow-x: hidden;
             position: relative;
         }
-
         @keyframes gradientMove {
             0%, 100% { background-position: 0% 50%; }
             50% { background-position: 100% 50%; }
         }
-
         body::before {
             content: '';
             position: fixed;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
+            top: -50%; left: -50%;
+            width: 200%; height: 200%;
             background: 
                 radial-gradient(circle at 20% 80%, rgba(196, 30, 58, 0.15) 0%, transparent 50%),
                 radial-gradient(circle at 80% 20%, rgba(22, 91, 51, 0.15) 0%, transparent 50%),
@@ -52,65 +42,17 @@
             animation: bgRotate 30s linear infinite;
             z-index: 0;
         }
-
-        @keyframes bgRotate {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
-        }
-
-        .snowflakes {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: 100;
-            overflow: hidden;
-        }
-
-        .snowflake {
-            position: absolute;
-            top: -20px;
-            color: var(--christmas-white);
-            font-size: 1rem;
-            animation: fall linear infinite;
-            opacity: 0.8;
-            text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
-        }
-
+        @keyframes bgRotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        .snowflakes { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 100; overflow: hidden; }
+        .snowflake { position: absolute; top: -20px; color: var(--christmas-white); font-size: 1rem; animation: fall linear infinite; opacity: 0.8; text-shadow: 0 0 10px rgba(255, 255, 255, 0.5); }
         @keyframes fall {
-            0% { 
-                transform: translateY(-20px) translateX(0) rotate(0deg); 
-                opacity: 0; 
-            }
+            0% { transform: translateY(-20px) translateX(0) rotate(0deg); opacity: 0; }
             10% { opacity: 0.8; }
             90% { opacity: 0.8; }
-            100% { 
-                transform: translateY(100vh) translateX(100px) rotate(360deg); 
-                opacity: 0; 
-            }
+            100% { transform: translateY(100vh) translateX(100px) rotate(360deg); opacity: 0; }
         }
-
-        /* Christmas decorations */
-        .christmas-decorations {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: 1;
-            overflow: hidden;
-        }
-
-        .decoration {
-            position: absolute;
-            font-size: 3rem;
-            opacity: 0.15;
-            animation: floatDecor 15s ease-in-out infinite;
-        }
-
+        .christmas-decorations { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1; overflow: hidden; }
+        .decoration { position: absolute; font-size: 3rem; opacity: 0.15; animation: floatDecor 15s ease-in-out infinite; }
         .decoration:nth-child(1) { top: 10%; left: 5%; animation-delay: 0s; font-size: 4rem; }
         .decoration:nth-child(2) { top: 20%; right: 8%; animation-delay: 2s; font-size: 3.5rem; }
         .decoration:nth-child(3) { top: 60%; left: 3%; animation-delay: 4s; font-size: 3rem; }
@@ -119,389 +61,61 @@
         .decoration:nth-child(6) { top: 85%; right: 10%; animation-delay: 10s; font-size: 3rem; }
         .decoration:nth-child(7) { top: 5%; left: 15%; animation-delay: 1s; font-size: 2rem; }
         .decoration:nth-child(8) { top: 50%; right: 3%; animation-delay: 3s; font-size: 3.5rem; }
-
         @keyframes floatDecor {
             0%, 100% { transform: translateY(0) rotate(0deg); }
             25% { transform: translateY(-20px) rotate(5deg); }
             50% { transform: translateY(0) rotate(0deg); }
             75% { transform: translateY(20px) rotate(-5deg); }
         }
-
-        /* Corner decorations */
-        .corner-decor {
-            position: fixed;
-            font-size: 6rem;
-            opacity: 0.1;
-            z-index: 1;
-            pointer-events: none;
-        }
-
+        .corner-decor { position: fixed; font-size: 6rem; opacity: 0.1; z-index: 1; pointer-events: none; }
         .corner-decor.top-left { top: 50px; left: 20px; }
         .corner-decor.top-right { top: 50px; right: 20px; }
         .corner-decor.bottom-left { bottom: 20px; left: 20px; }
         .corner-decor.bottom-right { bottom: 20px; right: 20px; }
-
-        /* Twinkling stars */
-        .stars {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: 0;
-        }
-
-        .star {
-            position: absolute;
-            font-size: 1.5rem;
-            color: gold;
-            opacity: 0;
-            animation: twinkle 3s ease-in-out infinite;
-        }
-
-        @keyframes twinkle {
-            0%, 100% { opacity: 0; transform: scale(0.8); }
-            50% { opacity: 0.6; transform: scale(1.2); }
-        }
-
-        .garland {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 40px;
-            display: flex;
-            justify-content: space-around;
-            align-items: center;
-            z-index: 999;
-            background: linear-gradient(180deg, rgba(10, 14, 26, 0.95) 0%, transparent 100%);
-            padding: 0 20px;
-        }
-
-        .light {
-            width: 18px;
-            height: 24px;
-            border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
-            animation: glow 1.5s infinite ease-in-out;
-            box-shadow: 0 0 20px currentColor;
-        }
-
-        @keyframes glow {
-            0%, 100% { 
-                opacity: 1; 
-                filter: brightness(1.5);
-                transform: scale(1);
-            }
-            50% { 
-                opacity: 0.6;
-                transform: scale(0.95);
-            }
-        }
-
+        .stars { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; }
+        .star { position: absolute; font-size: 1.5rem; color: gold; opacity: 0; animation: twinkle 3s ease-in-out infinite; }
+        @keyframes twinkle { 0%, 100% { opacity: 0; transform: scale(0.8); } 50% { opacity: 0.6; transform: scale(1.2); } }
+        .garland { position: fixed; top: 0; left: 0; width: 100%; height: 40px; display: flex; justify-content: space-around; align-items: center; z-index: 999; background: linear-gradient(180deg, rgba(10, 14, 26, 0.95) 0%, transparent 100%); padding: 0 20px; }
+        .light { width: 18px; height: 24px; border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%; animation: glow 1.5s infinite ease-in-out; box-shadow: 0 0 20px currentColor; }
+        @keyframes glow { 0%, 100% { opacity: 1; filter: brightness(1.5); transform: scale(1); } 50% { opacity: 0.6; transform: scale(0.95); } }
         .light:nth-child(6n+1) { background: #ff3366; color: #ff3366; animation-delay: 0s; }
         .light:nth-child(6n+2) { background: #33ff88; color: #33ff88; animation-delay: 0.25s; }
         .light:nth-child(6n+3) { background: #ffdd33; color: #ffdd33; animation-delay: 0.5s; }
         .light:nth-child(6n+4) { background: #3388ff; color: #3388ff; animation-delay: 0.75s; }
         .light:nth-child(6n+5) { background: #ff33dd; color: #ff33dd; animation-delay: 1s; }
         .light:nth-child(6n+6) { background: #33ddff; color: #33ddff; animation-delay: 1.25s; }
-
-        .container {
-            position: relative;
-            z-index: 10;
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 80px 20px 40px;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .main-title {
-            font-size: clamp(2.5rem, 8vw, 5rem);
-            font-weight: 900;
-            text-align: center;
-            margin-bottom: 15px;
-            background: linear-gradient(135deg, var(--christmas-red), var(--christmas-blue), var(--christmas-green), var(--christmas-blue), var(--christmas-red));
-            background-size: 300% 300%;
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            animation: gradientFlow 4s ease infinite;
-            filter: drop-shadow(0 0 30px rgba(255, 215, 0, 0.4));
-            letter-spacing: 2px;
-            line-height: 1.2;
-        }
-
-        @keyframes gradientFlow {
-            0%, 100% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-        }
-
-        .subtitle {
-            font-size: clamp(1rem, 3vw, 1.3rem);
-            text-align: center;
-            margin-bottom: 50px;
-            color: rgba(255, 255, 255, 0.7);
-            font-weight: 400;
-            line-height: 1.5;
-        }
-
-        .setup-card {
-            background: var(--glass-bg);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border: 2px solid var(--glass-border);
-            border-radius: 30px;
-            padding: clamp(25px, 5vw, 50px);
-            width: 100%;
-            max-width: 700px;
-            box-shadow: 
-                0 8px 32px 0 rgba(0, 0, 0, 0.37),
-                inset 0 0 0 1px rgba(255, 255, 255, 0.05);
-            animation: cardFloat 6s ease-in-out infinite;
-        }
-
-        @keyframes cardFloat {
-            0%, 100% { transform: translateY(0px); }
-            50% { transform: translateY(-10px); }
-        }
-
-        .form-group {
-            margin-bottom: clamp(20px, 4vw, 35px);
-        }
-
-        .form-label {
-            display: block;
-            font-size: clamp(0.95rem, 2.5vw, 1.1rem);
-            font-weight: 600;
-            margin-bottom: 12px;
-            color: var(--christmas-blue);
-            text-shadow: 0 0 20px rgba(255, 215, 0, 0.3);
-        }
-
-        .form-input {
-            width: 100%;
-            padding: clamp(12px, 2.5vw, 18px) clamp(15px, 3vw, 25px);
-            font-size: clamp(0.9rem, 2.5vw, 1.1rem);
-            background: rgba(255, 255, 255, 0.08);
-            border: 2px solid rgba(255, 255, 255, 0.15);
-            border-radius: 15px;
-            color: var(--christmas-white);
-            font-family: 'Poppins', sans-serif;
-            transition: all 0.3s ease;
-        }
-
-        .form-input:focus {
-            outline: none;
-            border-color: var(--christmas-blue);
-            background: rgba(255, 255, 255, 0.12);
-            box-shadow: 0 0 20px rgba(255, 215, 0, 0.2);
-        }
-
-        .form-input::placeholder {
-            color: rgba(255, 255, 255, 0.4);
-        }
-
-        .teams-list {
-            margin-top: 15px;
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-
-        .team-input-row {
-            display: flex;
-            gap: 12px;
-            align-items: stretch;
-        }
-
-        .team-input {
-            flex: 1;
-            padding: clamp(10px, 2vw, 15px) clamp(12px, 2.5vw, 20px);
-            font-size: clamp(0.85rem, 2vw, 1rem);
-            background: rgba(255, 255, 255, 0.06);
-            border: 2px solid rgba(255, 255, 255, 0.12);
-            border-radius: 12px;
-            color: var(--christmas-white);
-            font-family: 'Poppins', sans-serif;
-            transition: all 0.3s ease;
-        }
-
-        .team-input:focus {
-            outline: none;
-            border-color: var(--christmas-green);
-            box-shadow: 0 0 15px rgba(22, 91, 51, 0.3);
-            background: rgba(255, 255, 255, 0.1);
-        }
-
-        .remove-team-btn {
-            min-width: 45px;
-            width: 45px;
-            height: auto;
-            background: rgba(196, 30, 58, 0.2);
-            border: 2px solid rgba(196, 30, 58, 0.4);
-            border-radius: 12px;
-            color: var(--christmas-red);
-            font-size: 1.3rem;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-shrink: 0;
-        }
-
-        .remove-team-btn:hover {
-            background: rgba(196, 30, 58, 0.4);
-            transform: rotate(90deg) scale(1.05);
-            box-shadow: 0 0 15px rgba(196, 30, 58, 0.5);
-        }
-
-        .add-team-btn {
-            width: 100%;
-            padding: clamp(12px, 2.5vw, 15px);
-            background: rgba(22, 91, 51, 0.2);
-            border: 2px dashed rgba(22, 91, 51, 0.5);
-            border-radius: 12px;
-            color: var(--christmas-green);
-            font-size: clamp(0.85rem, 2vw, 1rem);
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            margin-top: 10px;
-        }
-
-        .add-team-btn:hover {
-            background: rgba(22, 91, 51, 0.35);
-            border-style: solid;
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(22, 91, 51, 0.3);
-        }
-
-        .start-btn {
-            width: 100%;
-            padding: clamp(18px, 3vw, 25px);
-            font-size: clamp(1.1rem, 3vw, 1.5rem);
-            font-weight: 900;
-            background: linear-gradient(135deg, var(--christmas-red), #ff4d6a, var(--christmas-red));
-            background-size: 200% 200%;
-            border: none;
-            border-radius: 20px;
-            color: var(--christmas-white);
-            cursor: pointer;
-            transition: all 0.4s ease;
-            box-shadow: 0 10px 30px rgba(196, 30, 58, 0.4);
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            margin-top: clamp(20px, 4vw, 30px);
-            animation: buttonPulse 2s ease-in-out infinite;
-        }
-
-        @keyframes buttonPulse {
-            0%, 100% { box-shadow: 0 10px 30px rgba(196, 30, 58, 0.4); }
-            50% { box-shadow: 0 15px 40px rgba(196, 30, 58, 0.6); }
-        }
-
-        .start-btn:hover {
-            background-position: 100% 50%;
-            transform: translateY(-5px);
-            box-shadow: 0 15px 50px rgba(196, 30, 58, 0.6);
-        }
-
-        .start-btn:active {
-            transform: translateY(-2px);
-        }
-
-        .decoration-left,
-        .decoration-right {
-            position: fixed;
-            font-size: clamp(5rem, 15vw, 12rem);
-            opacity: 0.05;
-            z-index: 1;
-            animation: decorFloat 8s ease-in-out infinite;
-            pointer-events: none;
-        }
-
-        .decoration-left {
-            bottom: 5%;
-            left: 2%;
-            animation-delay: 0s;
-        }
-
-        .decoration-right {
-            top: 10%;
-            right: 2%;
-            animation-delay: 4s;
-        }
-
-        @keyframes decorFloat {
-            0%, 100% { transform: translateY(0px) rotate(0deg); }
-            50% { transform: translateY(-20px) rotate(5deg); }
-        }
-
-        .rounds-info {
-            margin-top: 20px;
-            padding: 15px;
-            background: rgba(0, 212, 255, 0.1);
-            border: 2px solid rgba(0, 212, 255, 0.3);
-            border-radius: 15px;
-            text-align: center;
-        }
-
-        .rounds-info h3 {
-            color: var(--christmas-blue);
-            margin-bottom: 10px;
-        }
-
-        .rounds-info p {
-            color: rgba(255, 255, 255, 0.7);
-            font-size: 0.9rem;
-        }
-
-        @media (max-width: 768px) {
-            .container {
-                padding: 60px 15px 30px;
-            }
-
-            .setup-card {
-                border-radius: 20px;
-            }
-
-            .team-input-row {
-                gap: 10px;
-            }
-
-            .remove-team-btn {
-                min-width: 40px;
-                width: 40px;
-            }
-
-            .garland {
-                height: 35px;
-            }
-
-            .light {
-                width: 14px;
-                height: 20px;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .main-title {
-                letter-spacing: 1px;
-            }
-
-            .setup-card {
-                padding: 20px 15px;
-            }
-
-            .form-group {
-                margin-bottom: 20px;
-            }
-        }
+        .container { position: relative; z-index: 10; max-width: 800px; margin: 0 auto; padding: 80px 20px 40px; min-height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+        .main-title { font-size: clamp(2.5rem, 8vw, 5rem); font-weight: 900; text-align: center; margin-bottom: 15px; background: linear-gradient(135deg, var(--christmas-red), var(--christmas-blue), var(--christmas-green), var(--christmas-blue), var(--christmas-red)); background-size: 300% 300%; -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; animation: gradientFlow 4s ease infinite; filter: drop-shadow(0 0 30px rgba(255, 215, 0, 0.4)); letter-spacing: 2px; line-height: 1.2; }
+        @keyframes gradientFlow { 0%, 100% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } }
+        .subtitle { font-size: clamp(1rem, 3vw, 1.3rem); text-align: center; margin-bottom: 50px; color: rgba(255, 255, 255, 0.7); font-weight: 400; line-height: 1.5; }
+        .setup-card { background: var(--glass-bg); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 2px solid var(--glass-border); border-radius: 30px; padding: clamp(25px, 5vw, 50px); width: 100%; max-width: 700px; box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37), inset 0 0 0 1px rgba(255, 255, 255, 0.05); animation: cardFloat 6s ease-in-out infinite; }
+        @keyframes cardFloat { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-10px); } }
+        .form-group { margin-bottom: clamp(20px, 4vw, 35px); }
+        .form-label { display: block; font-size: clamp(0.95rem, 2.5vw, 1.1rem); font-weight: 600; margin-bottom: 12px; color: var(--christmas-blue); text-shadow: 0 0 20px rgba(255, 215, 0, 0.3); }
+        .form-input { width: 100%; padding: clamp(12px, 2.5vw, 18px) clamp(15px, 3vw, 25px); font-size: clamp(0.9rem, 2.5vw, 1.1rem); background: rgba(255, 255, 255, 0.08); border: 2px solid rgba(255, 255, 255, 0.15); border-radius: 15px; color: var(--christmas-white); font-family: 'Poppins', sans-serif; transition: all 0.3s ease; }
+        .form-input:focus { outline: none; border-color: var(--christmas-blue); background: rgba(255, 255, 255, 0.12); box-shadow: 0 0 20px rgba(255, 215, 0, 0.2); }
+        .form-input::placeholder { color: rgba(255, 255, 255, 0.4); }
+        .teams-list { margin-top: 15px; display: flex; flex-direction: column; gap: 12px; }
+        .team-input-row { display: flex; gap: 12px; align-items: stretch; }
+        .team-input { flex: 1; padding: clamp(10px, 2vw, 15px) clamp(12px, 2.5vw, 20px); font-size: clamp(0.85rem, 2vw, 1rem); background: rgba(255, 255, 255, 0.06); border: 2px solid rgba(255, 255, 255, 0.12); border-radius: 12px; color: var(--christmas-white); font-family: 'Poppins', sans-serif; transition: all 0.3s ease; }
+        .team-input:focus { outline: none; border-color: var(--christmas-green); box-shadow: 0 0 15px rgba(22, 91, 51, 0.3); background: rgba(255, 255, 255, 0.1); }
+        .remove-team-btn { min-width: 45px; width: 45px; height: auto; background: rgba(196, 30, 58, 0.2); border: 2px solid rgba(196, 30, 58, 0.4); border-radius: 12px; color: var(--christmas-red); font-size: 1.3rem; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .remove-team-btn:hover { background: rgba(196, 30, 58, 0.4); transform: rotate(90deg) scale(1.05); box-shadow: 0 0 15px rgba(196, 30, 58, 0.5); }
+        .add-team-btn { width: 100%; padding: clamp(12px, 2.5vw, 15px); background: rgba(22, 91, 51, 0.2); border: 2px dashed rgba(22, 91, 51, 0.5); border-radius: 12px; color: var(--christmas-green); font-size: clamp(0.85rem, 2vw, 1rem); font-weight: 600; cursor: pointer; transition: all 0.3s ease; margin-top: 10px; }
+        .add-team-btn:hover { background: rgba(22, 91, 51, 0.35); border-style: solid; transform: translateY(-2px); box-shadow: 0 5px 15px rgba(22, 91, 51, 0.3); }
+        .start-btn { width: 100%; padding: clamp(18px, 3vw, 25px); font-size: clamp(1.1rem, 3vw, 1.5rem); font-weight: 900; background: linear-gradient(135deg, var(--christmas-red), #ff4d6a, var(--christmas-red)); background-size: 200% 200%; border: none; border-radius: 20px; color: var(--christmas-white); cursor: pointer; transition: all 0.4s ease; box-shadow: 0 10px 30px rgba(196, 30, 58, 0.4); text-transform: uppercase; letter-spacing: 2px; margin-top: clamp(20px, 4vw, 30px); animation: buttonPulse 2s ease-in-out infinite; }
+        @keyframes buttonPulse { 0%, 100% { box-shadow: 0 10px 30px rgba(196, 30, 58, 0.4); } 50% { box-shadow: 0 15px 40px rgba(196, 30, 58, 0.6); } }
+        .start-btn:hover { background-position: 100% 50%; transform: translateY(-5px); box-shadow: 0 15px 50px rgba(196, 30, 58, 0.6); }
+        .start-btn:active { transform: translateY(-2px); }
+        .decoration-left, .decoration-right { position: fixed; font-size: clamp(5rem, 15vw, 12rem); opacity: 0.05; z-index: 1; animation: decorFloat 8s ease-in-out infinite; pointer-events: none; }
+        .decoration-left { bottom: 5%; left: 2%; animation-delay: 0s; }
+        .decoration-right { top: 10%; right: 2%; animation-delay: 4s; }
+        @keyframes decorFloat { 0%, 100% { transform: translateY(0px) rotate(0deg); } 50% { transform: translateY(-20px) rotate(5deg); } }
+        .rounds-info { margin-top: 20px; padding: 15px; background: rgba(0, 212, 255, 0.1); border: 2px solid rgba(0, 212, 255, 0.3); border-radius: 15px; text-align: center; }
+        .rounds-info h3 { color: var(--christmas-blue); margin-bottom: 10px; }
+        .rounds-info p { color: rgba(255, 255, 255, 0.7); font-size: 0.9rem; }
+        @media (max-width: 768px) { .container { padding: 60px 15px 30px; } .setup-card { border-radius: 20px; } .team-input-row { gap: 10px; } .remove-team-btn { min-width: 40px; width: 40px; } .garland { height: 35px; } .light { width: 14px; height: 20px; } }
+        @media (max-width: 480px) { .main-title { letter-spacing: 1px; } .setup-card { padding: 20px 15px; } .form-group { margin-bottom: 20px; } }
     </style>
 </head>
 <body>
@@ -512,10 +126,7 @@
         <div class="light"></div><div class="light"></div><div class="light"></div><div class="light"></div><div class="light"></div><div class="light"></div>
         <div class="light"></div><div class="light"></div><div class="light"></div><div class="light"></div><div class="light"></div><div class="light"></div>
     </div>
-
     <div class="snowflakes" id="snowflakes"></div>
-
-    <!-- Christmas decorations -->
     <div class="christmas-decorations">
         <div class="decoration">🎄</div>
         <div class="decoration">🎁</div>
@@ -526,28 +137,20 @@
         <div class="decoration">🍪</div>
         <div class="decoration">🎀</div>
     </div>
-
-    <!-- Corner decorations -->
     <div class="corner-decor top-left">🎄</div>
     <div class="corner-decor top-right">⭐</div>
     <div class="corner-decor bottom-left">🎁</div>
     <div class="corner-decor bottom-right">☃️</div>
-
-    <!-- Twinkling stars -->
     <div class="stars" id="stars"></div>
-
     <div class="decoration-left">🎄</div>
     <div class="decoration-right">⛄</div>
-
     <div class="container">
         <h1 class="main-title">🎄 INQUIZ 🎅</h1>
-
         <div class="setup-card">
             <div class="form-group">
                 <label class="form-label">⏱️ Čas na odpověď (sekundy)</label>
                 <input type="number" class="form-input" id="timeLimit" value="30" min="10" max="120">
             </div>
-
             <div class="form-group">
                 <label class="form-label">👥 Týmy</label>
                 <div class="teams-list" id="teamsList">
@@ -566,17 +169,14 @@
                 </div>
                 <button class="add-team-btn" onclick="addTeam()">+ Přidat tým</button>
             </div>
-
             <button class="start-btn" onclick="startGame()">🚀 ZAČÍT HRU</button>
         </div>
     </div>
-
     <script>
         function createSnowflakes() {
             const container = document.getElementById('snowflakes');
             const flakes = ['❄', '❅', '❆', '✻', '✼', '❉'];
             const count = window.innerWidth < 768 ? 30 : 50;
-            
             for (let i = 0; i < count; i++) {
                 const flake = document.createElement('div');
                 flake.className = 'snowflake';
@@ -588,11 +188,9 @@
                 container.appendChild(flake);
             }
         }
-
         function createStars() {
             const container = document.getElementById('stars');
             const count = window.innerWidth < 768 ? 15 : 25;
-            
             for (let i = 0; i < count; i++) {
                 const star = document.createElement('div');
                 star.className = 'star';
@@ -605,11 +203,9 @@
                 container.appendChild(star);
             }
         }
-
         function addTeam() {
             const teamsList = document.getElementById('teamsList');
             const teamNumber = teamsList.children.length + 1;
-            
             const row = document.createElement('div');
             row.className = 'team-input-row';
             row.innerHTML = `
@@ -618,7 +214,6 @@
             `;
             teamsList.appendChild(row);
         }
-
         function removeTeam(btn) {
             const teamsList = document.getElementById('teamsList');
             if (teamsList.children.length > 2) {
@@ -627,37 +222,29 @@
                 alert('Musí být minimálně 2 týmy!');
             }
         }
-
         function startGame() {
             const teamsList = document.getElementById('teamsList');
             const teamInputs = teamsList.querySelectorAll('.team-input');
             const teams = [];
-            
             teamInputs.forEach(input => {
                 const name = input.value.trim();
                 if (name) {
                     teams.push({ name: name, score: 0 });
                 }
             });
-
             if (teams.length < 2) {
                 alert('Vytvořte minimálně 2 týmy!');
                 return;
             }
-
             const timeLimit = parseInt(document.getElementById('timeLimit').value);
-
             localStorage.setItem('gameSetup', JSON.stringify({
                 teams: teams,
                 timeLimit: timeLimit
             }));
-
             window.location.href = 'game.html';
         }
-
         createSnowflakes();
         createStars();
-        
         let resizeTimer;
         window.addEventListener('resize', () => {
             clearTimeout(resizeTimer);
